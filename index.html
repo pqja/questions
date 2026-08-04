@@ -16,7 +16,7 @@
         /* القسم العلوي */
         .top-ui { position: absolute; top: 15px; width: 100%; display: flex; justify-content: flex-start; padding: 0 15px; box-sizing: border-box; pointer-events: none; }
         
-        /* الأزرار الجانبية في الجهة اليسرى كما طلبت */
+        /* الأزرار الجانبية في الجهة اليسرى */
         .side-buttons { position: absolute; left: 15px; display: flex; flex-direction: column; gap: 8px; transition: 0.3s; pointer-events: auto; }
         
         .ui-btn { background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 10px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; backdrop-filter: blur(8px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s; }
@@ -25,7 +25,7 @@
         /* رصيد الذهب في اليمين */
         .coins-display { position: absolute; right: 15px; background: linear-gradient(45deg, #ffd700, #ffaa00); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 20px; box-shadow: 0 4px 10px rgba(255,215,0,0.4); height: fit-content; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
 
-        /* القسم السفلي (الأزرار المربعة الأنيقة) */
+        /* القسم السفلي */
         .bottom-ui { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; pointer-events: auto; padding: 0 10px; box-sizing: border-box; }
         .cust-btn { background: rgba(20, 20, 30, 0.8); border: 2px solid #00ffcc; color: white; border-radius: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 255, 204, 0.2); width: 75px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; transition: 0.1s; backdrop-filter: blur(5px); }
         .cust-btn:active { transform: scale(0.9); }
@@ -47,12 +47,10 @@
         .save-btn { background: linear-gradient(45deg, #00ffcc, #00aaff); color: #000; padding: 12px 0; width: 100%; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
         .save-btn:active { transform: scale(0.95); }
 
-        /* شبكة الألوان */
         .color-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
         .swatch { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255,255,255,0.2); transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
         .swatch:hover, .swatch.active { border-color: #00ffcc; transform: scale(1.1); }
 
-        /* نظام الأصدقاء */
         .friend-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .friend-name { font-weight: bold; color: #fff; font-size: 16px; display: block; text-align: right; }
         .friend-id { font-size: 11px; color: #aaa; }
@@ -60,6 +58,11 @@
         .btn-small.green { background: #00ffcc; color: #000; }
         
         #notification { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); background: #ff0055; color: white; padding: 12px 25px; border-radius: 20px; font-size: 16px; font-weight: bold; z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,0,85,0.4); }
+
+        /* ستايل نافذة النتائج */
+        .result-box { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 2px solid; text-align: right; }
+        .result-box h3 { margin: 0 0 10px 0; font-size: 16px; }
+        .result-box p { margin: 5px 0 0 0; font-size: 14px; font-weight: bold; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -69,13 +72,11 @@
     
     <div id="ui-layer">
         <div class="top-ui">
-            <!-- الأزرار الجانبية في الجهة اليسرى -->
             <div class="side-buttons" id="side-buttons">
                 <button class="ui-btn" onclick="openModal('settings-modal')">⚙️ الحساب والإعدادات</button>
                 <button class="ui-btn" onclick="openModal('friends-modal')">👥 الأصدقاء <span id="req-badge" style="display:none; background:red; border-radius:50%; padding:2px 6px; font-size:10px;">!</span></button>
                 <button class="ui-btn" onclick="openModal('rooms-modal')">🎮 غرف اللعب</button>
             </div>
-            <!-- رصيد الذهب -->
             <div class="coins-display">💰 <span id="coins-val">0</span></div>
         </div>
 
@@ -90,10 +91,36 @@
         </div>
     </div>
 
-    <!-- شاشة العداد التنازلي -->
+    <!-- شاشة العد التنازلي -->
     <div id="countdown-overlay" class="hidden">3</div>
 
     <div id="notification">رسالة</div>
+
+    <!-- نافذة النتائج النهائية -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="result-main-title" style="color: #ffd700; text-shadow: 0 0 10px #ffaa00; margin-top: 0;">نهاية الجولة!</h2>
+            
+            <div class="result-box" style="border-color: #00ffcc; background: rgba(0,255,204,0.1);">
+                <h3 style="color: #00ffcc;">🏆 المركز الأول (الفائز)</h3>
+                <p id="first-place-name" style="font-size: 18px;">الاسم</p>
+                <p id="first-place-coins" style="color: #ffd700;">💰 أخذ كل الذهب: 0</p>
+            </div>
+            
+            <div class="result-box" style="border-color: #ff0055; background: rgba(255,0,85,0.1);">
+                <h3 style="color: #ff0055;">🥈 المركز الثاني (الخاسر)</h3>
+                <p id="second-place-name">الاسم</p>
+                <p id="second-place-coins" style="color: #aaa;">🪙 النقاط المجمعة: 0</p>
+            </div>
+            
+            <div id="taunt-box" style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; border-right: 4px solid #00ffcc; text-align: right; font-style: italic;">
+                <p style="font-size: 12px; color: #aaa; margin: 0 0 5px 0;">رسالة الفائز:</p>
+                <p id="taunt-msg" style="margin: 0; font-weight: bold; color: #fff; font-size: 16px;">...</p>
+            </div>
+            
+            <button class="save-btn" onclick="closeResultModal()">استمرار</button>
+        </div>
+    </div>
 
     <!-- الإعدادات -->
     <div id="settings-modal" class="modal">
@@ -105,7 +132,7 @@
             <input type="text" id="victory-msg-input" placeholder="رسالة الانتصار (تظهر للخصم)">
             
             <div style="background: rgba(0,255,204,0.1); border: 1px solid #00ffcc; padding: 15px; border-radius: 15px; margin-top: 15px;">
-                <p style="margin: 0; font-size: 12px; color: #00ffcc;">رقم الـ ID الخاص بك (أعطه لأصدقائك)</p>
+                <p style="margin: 0; font-size: 12px; color: #00ffcc;">رقم الـ ID الخاص بك</p>
                 <h1 id="player-id" style="margin: 5px 0 0 0; color: #fff; letter-spacing: 3px;">----</h1>
             </div>
             <button class="save-btn" id="save-settings-btn">حفظ الحساب دائمًا</button>
@@ -122,7 +149,6 @@
                 <button class="save-btn" style="margin:0; width:auto; padding: 0 15px;" id="add-friend-btn">إضافة</button>
             </div>
             
-            <!-- دعوات الغرف -->
             <h3 style="text-align: right; margin-bottom: 5px; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 5px; color: #00ffcc;">دعوات اللعب</h3>
             <div id="room-invites-list" style="margin-bottom: 15px;">لا توجد دعوات حالياً.</div>
 
@@ -144,7 +170,7 @@
         </div>
     </div>
 
-    <!-- التخصيص (تم وضع زر الحفظ داخل كل نافذة) -->
+    <!-- التخصيص -->
     <div id="gender-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('gender-modal')">×</span>
@@ -182,7 +208,6 @@
                 <div class="swatch" style="background: #111111;" onclick="updateCustoms('clothes', '#111111');"></div>
                 <div class="swatch" style="background: #ffffff;" onclick="updateCustoms('clothes', '#ffffff');"></div>
             </div>
-            <!-- زر الحفظ داخل نافذة الملابس -->
             <button class="save-btn" onclick="closeModal('clothes-modal')">حفظ الملابس</button>
         </div>
     </div>
@@ -329,7 +354,7 @@
             }, { onlyOnce: true });
         }
 
-        // ================== نظام الأصدقاء والدعوات ==================
+        // ================== نظام الأصدقاء ==================
         document.getElementById('add-friend-btn').addEventListener('click', async () => {
             const targetId = document.getElementById('friend-id-input').value;
             if(!targetId || targetId == myNumId) return showNotification("ID غير صالح!");
@@ -354,7 +379,6 @@
         function listenToFriends() {
             if(!myNumId) return;
             
-            // مستمع طلبات الصداقة
             onValue(ref(db, `users/${myNumId}/requests`), (snap) => {
                 const reqBox = document.getElementById('requests-list');
                 reqBox.innerHTML = '';
@@ -378,7 +402,6 @@
                 updateBadge();
             });
 
-            // مستمع دعوات الغرف
             onValue(ref(db, `users/${myNumId}/room_invites`), (snap) => {
                 const invBox = document.getElementById('room-invites-list');
                 invBox.innerHTML = '';
@@ -399,7 +422,6 @@
                 updateBadge();
             });
 
-            // قائمة الأصدقاء
             onValue(ref(db, `users/${myNumId}/friends`), (snap) => {
                 const fBox = document.getElementById('friends-list');
                 fBox.innerHTML = '';
@@ -431,10 +453,9 @@
             
             const roomId = 'room_' + myNumId + '_' + Date.now();
             currentRoom = roomId;
-            set(ref(db, `rooms/${roomId}`), { p1: myNumId, status: 'waiting', p1State: { alive: true, x: 0, y: 0, z: 0 } });
+            set(ref(db, `rooms/${roomId}`), { p1: myNumId, status: 'waiting', p1State: { alive: true, x: 0, y: 0, z: 0, name: myName, vMsg: victoryMessage, coins: 0 } });
             onDisconnect(ref(db, `rooms/${roomId}`)).remove();
             
-            // فتح قائمة الأصدقاء داخل نفس النافذة لإرسال الدعوة
             const roomContent = document.getElementById('room-modal-content');
             roomContent.innerHTML = `
                 <span class="close-btn" onclick="closeModal('rooms-modal'); location.reload();">×</span>
@@ -470,7 +491,7 @@
         window.acceptRoomInvite = async function(hostId, roomId) {
             await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
             currentRoom = roomId;
-            update(ref(db, `rooms/${roomId}`), { p2: myNumId, status: 'ready', p2State: { alive: true, x: 0, y: 0, z: 0 } });
+            update(ref(db, `rooms/${roomId}`), { p2: myNumId, status: 'ready', p2State: { alive: true, x: 0, y: 0, z: 0, name: myName, vMsg: victoryMessage, coins: 0 } });
             onDisconnect(ref(db, `rooms/${roomId}/p2State/alive`)).set(false);
             listenToRoom();
         }
@@ -509,7 +530,6 @@
                 const data = snapshot.val();
                 if(!data) return;
                 
-                // عندما ينضم الصديق وتصبح الغرفة ready، يبدأ العداد التنازلي للطرفين
                 if(data.status === 'ready' && !window.isCountingDown && !isGameRunning) { 
                     startCountdown(); 
                 }
@@ -525,6 +545,7 @@
                     opponentGroup.position.z = playerGroup.position.z; 
                     opponentGroup.visible = true;
 
+                    // اكتشاف فوز اللاعب الحالي (الخصم مات أولاً)
                     if(!oppState.alive && myState.alive && isGameRunning) winGame(oppState.coins || 0);
                 }
             });
@@ -548,7 +569,6 @@
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
         dirLight.position.set(-15, 25, 10); dirLight.castShadow = true; scene.add(dirLight);
 
-        // الأرضية والسكك
         const groundMat = new THREE.MeshStandardMaterial({ color: 0x4aa02c });
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 600), groundMat);
         ground.rotation.x = -Math.PI / 2; ground.position.z = -200; ground.receiveShadow = true; scene.add(ground);
@@ -582,7 +602,7 @@
             b.position.z = 100; b.userData = { active: false }; b.visible = false; scene.add(b); buildings.push(b);
         }
 
-        // ================== بناء الشخصية المطورة (شعر ورأس واقعي، وأكمام للأذرع) ==================
+        // ================== بناء الشخصية ==================
         function createCharacter(isGhost = false) {
             const group = new THREE.Group();
             
@@ -591,26 +611,23 @@
             const hairMat = new THREE.MeshStandardMaterial({ color: customizations.hair });
             const pantsMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
 
-            // --- الرأس ---
             const headGroup = new THREE.Group(); headGroup.name = "headGroup"; headGroup.position.y = 2.6;
             
             const skull = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), skinMat);
             skull.name = "skull"; skull.castShadow = !isGhost; headGroup.add(skull);
 
-            // الشعر المرتبط بالرأس
             const hairGroup = new THREE.Group(); hairGroup.name = "hairGroup";
             
             const hairBase = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.3, 1.05), hairMat);
-            hairBase.position.y = 0.55; // يغطي الرأس من الأعلى
+            hairBase.position.y = 0.55; 
             hairBase.name = "hairBase"; hairBase.castShadow = !isGhost; hairGroup.add(hairBase);
 
             const hairPony = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.3, 0.4), hairMat);
-            hairPony.position.set(0, -0.1, -0.45); // ذيل الحصان للبنات من الخلف
+            hairPony.position.set(0, -0.1, -0.45); 
             hairPony.name = "hairPony"; hairPony.castShadow = !isGhost; hairGroup.add(hairPony);
             
             headGroup.add(hairGroup);
 
-            // العيون والأنف
             const eyeGeo = new THREE.BoxGeometry(0.2, 0.15, 0.05);
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
             const pupilGeo = new THREE.BoxGeometry(0.08, 0.08, 0.06);
@@ -625,46 +642,34 @@
             nose.position.set(0, -0.05, 0.48); nose.name = "nose"; headGroup.add(nose);
             group.add(headGroup);
 
-            // --- الجسم (القميص) ---
             const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.6), clothesMat);
             body.position.y = 1.4; body.name = "body"; body.castShadow = !isGhost; group.add(body);
 
-            // --- الأذرع مع الأكمام (الردان) ---
-            // الذراع اليسرى
             const leftArmGroup = new THREE.Group();
-            leftArmGroup.name = "lArmGroup"; leftArmGroup.position.set(-0.75, 2.0, 0); // مفصل الكتف
-
+            leftArmGroup.name = "lArmGroup"; leftArmGroup.position.set(-0.75, 2.0, 0); 
             const lSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.7, 0.35), clothesMat);
             lSleeve.position.set(0, -0.35, 0); lSleeve.name = "lSleeve"; lSleeve.castShadow = !isGhost; leftArmGroup.add(lSleeve);
-            
             const lSkin = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.7, 0.33), skinMat);
             lSkin.position.set(0, -1.05, 0); lSkin.name = "lSkin"; lSkin.castShadow = !isGhost; leftArmGroup.add(lSkin);
-            
             group.add(leftArmGroup);
 
-            // الذراع اليمنى
             const rightArmGroup = new THREE.Group();
-            rightArmGroup.name = "rArmGroup"; rightArmGroup.position.set(0.75, 2.0, 0); // مفصل الكتف
-
+            rightArmGroup.name = "rArmGroup"; rightArmGroup.position.set(0.75, 2.0, 0); 
             const rSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.7, 0.35), clothesMat);
             rSleeve.position.set(0, -0.35, 0); rSleeve.name = "rSleeve"; rSleeve.castShadow = !isGhost; rightArmGroup.add(rSleeve);
-            
             const rSkin = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.7, 0.33), skinMat);
             rSkin.position.set(0, -1.05, 0); rSkin.name = "rSkin"; rSkin.castShadow = !isGhost; rightArmGroup.add(rSkin);
-            
             group.add(rightArmGroup);
 
-            // --- الأقدام ---
             const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1, 0.45), pantsMat);
             leftLeg.position.set(-0.35, 0.5, 0); leftLeg.name = "lLeg"; leftLeg.castShadow = !isGhost; group.add(leftLeg);
             const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1, 0.45), pantsMat);
             rightLeg.position.set(0.35, 0.5, 0); rightLeg.name = "rLeg"; rightLeg.castShadow = !isGhost; group.add(rightLeg);
 
-            // إعدادات الشبح (Multiplayer)
             if(isGhost) {
                 group.traverse(c => {
                     if(c.isMesh && c.material) {
-                        c.material = c.material.clone(); // فصل الماتيريال حتى لا يصبح اللاعب الأساسي شفافاً
+                        c.material = c.material.clone(); 
                         c.material.transparent = true;
                         c.material.opacity = 0.5;
                         c.castShadow = false;
@@ -684,11 +689,9 @@
             const p = playerGroup;
             const isGirl = customizations.gender === 'girl';
 
-            // الألوان والتحديثات
             p.getObjectByName("body").material.color.set(customizations.clothes);
             p.getObjectByName("lSleeve").material.color.set(customizations.clothes);
             p.getObjectByName("rSleeve").material.color.set(customizations.clothes);
-            
             p.getObjectByName("hairBase").material.color.set(customizations.hair);
             p.getObjectByName("hairPony").material.color.set(customizations.hair);
             
@@ -714,7 +717,6 @@
                 lPupil.material.color.setHex(0x0055ff);
             }
 
-            // تعديل أبعاد الجسم والشعر بناءً على الجنس
             let hBase = p.getObjectByName("hairBase");
             let hPony = p.getObjectByName("hairPony");
             let body = p.getObjectByName("body");
@@ -722,27 +724,19 @@
             let rArm = p.getObjectByName("rArmGroup");
 
             if(isGirl) {
-                hBase.scale.set(1.05, 1.2, 1.05);
-                hBase.position.set(0, 0.45, 0); 
-                hPony.visible = true; // إظهار الشعر الطويل للبنت
-                
-                // جسم أنحف وأكثر واقعية للبنت
+                hBase.scale.set(1.05, 1.2, 1.05); hBase.position.set(0, 0.45, 0); 
+                hPony.visible = true; 
                 body.scale.set(0.85, 0.95, 0.8);
-                lArm.position.set(-0.65, 1.9, 0); // اقتراب الأذرع للداخل
-                rArm.position.set(0.65, 1.9, 0);
+                lArm.position.set(-0.65, 1.9, 0); rArm.position.set(0.65, 1.9, 0);
             } else {
-                hBase.scale.set(1.0, 1.0, 1.0); 
-                hBase.position.set(0, 0.55, 0);
-                hPony.visible = false; // إخفاء الشعر الطويل للولد
-                
-                // جسم أعرض للولد
+                hBase.scale.set(1.0, 1.0, 1.0); hBase.position.set(0, 0.55, 0);
+                hPony.visible = false; 
                 body.scale.set(1.0, 1.0, 1.0);
-                lArm.position.set(-0.75, 2.0, 0); // أكتاف عريضة
-                rArm.position.set(0.75, 2.0, 0);
+                lArm.position.set(-0.75, 2.0, 0); rArm.position.set(0.75, 2.0, 0);
             }
         }
 
-        // ================== إعدادات اللعب وتوليد العقبات ==================
+        // ================== إعدادات اللعب ==================
         const CONSTANT_SPEED = 0.8;
         let gameSpeed = 0; let isGameRunning = false;
         let currentLane = 0; let targetX = 0;
@@ -752,7 +746,6 @@
         let matchCoins = 0;
 
         const obstacles = []; const coins = [];
-        
         const trainGeo = new THREE.BoxGeometry(2.8, 3.5, 30);
         const trainMat = new THREE.MeshStandardMaterial({ color: 0xff3300, roughness: 0.3 });
         
@@ -760,16 +753,9 @@
             const group = new THREE.Group();
             const pillarMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
             const topMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            
-            const pL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat);
-            pL.position.set(-1.25, 1, 0); pL.castShadow = true; group.add(pL);
-            
-            const pR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat);
-            pR.position.set(1.25, 1, 0); pR.castShadow = true; group.add(pR);
-            
-            const top = new THREE.Mesh(new THREE.BoxGeometry(3, 10, 0.5), topMat);
-            top.position.set(0, 7.3, 0); top.name = "hitbox"; top.castShadow = true; group.add(top);
-            
+            const pL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat); pL.position.set(-1.25, 1, 0); pL.castShadow = true; group.add(pL);
+            const pR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat); pR.position.set(1.25, 1, 0); pR.castShadow = true; group.add(pR);
+            const top = new THREE.Mesh(new THREE.BoxGeometry(3, 10, 0.5), topMat); top.position.set(0, 7.3, 0); top.name = "hitbox"; top.castShadow = true; group.add(top);
             return group;
         }
 
@@ -780,9 +766,7 @@
             const isBarrier = Math.random() > 0.6;
             const mesh = isBarrier ? createAwesomeBarrier() : new THREE.Mesh(trainGeo, trainMat);
             if(!isBarrier) mesh.castShadow = true; mesh.receiveShadow = true;
-            mesh.position.z = 100;
-            mesh.userData = { active: false, type: isBarrier ? 'barrier' : 'train' };
-            mesh.visible = false;
+            mesh.position.z = 100; mesh.userData = { active: false, type: isBarrier ? 'barrier' : 'train' }; mesh.visible = false;
             scene.add(mesh); obstacles.push(mesh);
         }
 
@@ -792,102 +776,61 @@
             mesh.userData = { active: false }; mesh.visible = false; scene.add(mesh); coins.push(mesh);
         }
 
-        let obstacleTimer = 0;
-        let coinTimer = 0;
-        
+        let obstacleTimer = 0; let coinTimer = 0;
         function spawnObjects() {
             if(!isGameRunning) return;
-            obstacleTimer++;
-            coinTimer++;
-
+            obstacleTimer++; coinTimer++;
             if(obstacleTimer > 110 && Math.random() < 0.3) {
                 let isHardMode = matchCoins > 10 && Math.random() > 0.4;
-                
                 if (isHardMode) {
                     let lanes = [0, 1, 2].sort(() => 0.5 - Math.random());
                     for(let k=0; k<2; k++) {
                         const obs = obstacles.find(o => !o.userData.active && o.userData.type === 'train');
-                        if (obs) {
-                            obs.position.set(lanesX[lanes[k]], 1.75, -350);
-                            obs.userData.active = true;
-                            obs.visible = true;
-                        }
+                        if (obs) { obs.position.set(lanesX[lanes[k]], 1.75, -350); obs.userData.active = true; obs.visible = true; }
                     }
                 } else {
                     const obs = obstacles.find(o => !o.userData.active);
                     if(obs) {
                         const lane = lanesX[Math.floor(Math.random() * 3)];
                         obs.position.set(lane, obs.userData.type === 'barrier' ? 0 : 1.75, -350);
-                        obs.userData.active = true;
-                        obs.visible = true;
+                        obs.userData.active = true; obs.visible = true;
                     }
                 }
                 obstacleTimer = 0;
             }
-
             if(Math.random() < 0.05) {
                 const b = buildings.find(x => !x.userData.active);
-                if(b) {
-                    const side = Math.random() > 0.5 ? 12 : -12; 
-                    b.position.set(side, 7.5, -300);
-                    b.userData.active = true;
-                    b.visible = true;
-                }
+                if(b) { b.position.set(Math.random() > 0.5 ? 12 : -12, 7.5, -300); b.userData.active = true; b.visible = true; }
             }
-
             if(coinTimer > 60 && obstacleTimer > 40 && obstacleTimer < 80 && Math.random() < 0.3) {
                 const lane = lanesX[Math.floor(Math.random() * 3)];
                 for(let j=0; j<5; j++) {
                     const coin = coins.find(c => !c.userData.active);
-                    if(coin) {
-                        coin.position.set(lane, 0.6, -300 - (j * 4.5)); 
-                        coin.userData.active = true;
-                        coin.visible = true;
-                    }
+                    if(coin) { coin.position.set(lane, 0.6, -300 - (j * 4.5)); coin.userData.active = true; coin.visible = true; }
                 }
                 coinTimer = 0;
             }
         }
         
-        let rightHitCount = 0;
-        let lastRightHitTime = 0;
-        let isInvincible = false;
-        let hackInterval;
-
+        let rightHitCount = 0; let lastRightHitTime = 0; let isInvincible = false; let hackInterval;
         function activateHack() {
-            isInvincible = true;
-            rightHitCount = 0;
-            let timeLeft = 60;
+            isInvincible = true; rightHitCount = 0; let timeLeft = 60;
             let hackUi = document.getElementById('hack-timer');
-            hackUi.classList.remove('hidden');
-            hackUi.innerText = timeLeft;
-            
+            hackUi.classList.remove('hidden'); hackUi.innerText = timeLeft;
             clearInterval(hackInterval);
             hackInterval = setInterval(() => {
-                timeLeft--;
-                hackUi.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(hackInterval);
-                    isInvincible = false;
-                    hackUi.classList.add('hidden');
-                }
+                timeLeft--; hackUi.innerText = timeLeft;
+                if(timeLeft <= 0) { clearInterval(hackInterval); isInvincible = false; hackUi.classList.add('hidden'); }
             }, 1000);
         }
 
-        // ================== التحكم ==================
         function actionLeft() { if(currentLane > -1) { currentLane--; targetX = currentLane * laneWidth; } }
         function actionRight() { 
-            if(currentLane < 1) { 
-                currentLane++; 
-                targetX = currentLane * laneWidth; 
+            if(currentLane < 1) { currentLane++; targetX = currentLane * laneWidth; 
             } else {
                 let now = Date.now();
-                if(now - lastRightHitTime < 500) {
-                    rightHitCount++;
-                    if(rightHitCount >= 3) activateHack();
-                } else {
-                    rightHitCount = 1;
-                }
+                if(now - lastRightHitTime < 500) { rightHitCount++; if(rightHitCount >= 3) activateHack();
+                } else { rightHitCount = 1; }
                 lastRightHitTime = now;
             }
         }
@@ -920,69 +863,29 @@
 
         function checkCollisions() {
             currentGroundY = 0;
-            const pX = playerGroup.position.x;
-            const pY = playerGroup.position.y;
-            const pZ = playerGroup.position.z;
-            
-            const pWidth = 0.8;
-            const pDepth = 0.8;
-            const pHeight = isSliding ? 1.4 : 3.0; 
+            const pX = playerGroup.position.x; const pY = playerGroup.position.y; const pZ = playerGroup.position.z;
+            const pWidth = 0.8; const pDepth = 0.8; const pHeight = isSliding ? 1.4 : 3.0; 
 
             for(let obs of obstacles) {
                 if(!obs.userData.active) continue;
-                
-                const oX = obs.position.x;
-                const oY = obs.position.y;
-                const oZ = obs.position.z;
+                const oX = obs.position.x; const oY = obs.position.y; const oZ = obs.position.z;
 
                 if(obs.userData.type === 'train') {
-                    const tWidth = 2.4; 
-                    const tDepth = 29.5;
-                    
-                    const intersectX = Math.abs(pX - oX) < (pWidth + tWidth) / 2;
-                    const intersectZ = Math.abs(pZ - oZ) < (pDepth + tDepth) / 2;
-                    
-                    if (intersectX && intersectZ) {
-                        if (pY >= 3.4 && velocityY <= 0) {
-                            currentGroundY = 3.5;
-                        } else if (pY < 3.4) {
-                            if(!isInvincible) {
-                                loseGame();
-                                return;
-                            }
-                        }
+                    if (Math.abs(pX - oX) < (pWidth + 2.4) / 2 && Math.abs(pZ - oZ) < (pDepth + 29.5) / 2) {
+                        if (pY >= 3.4 && velocityY <= 0) { currentGroundY = 3.5; } 
+                        else if (pY < 3.4) { if(!isInvincible) { loseGame(); return; } }
                     }
                 } else if (obs.userData.type === 'barrier') {
-                    const bWidth = 2.8;
-                    const bDepth = 0.5;
-                    const bMinY = 2.2; 
-
-                    const intersectX = Math.abs(pX - oX) < (pWidth + bWidth) / 2;
-                    const intersectZ = Math.abs(pZ - oZ) < (pDepth + bDepth) / 2;
-                    
-                    if (intersectX && intersectZ) {
-                        if (pY + pHeight > bMinY) {
-                            if(!isInvincible) {
-                                loseGame();
-                                return;
-                            }
-                        }
+                    if (Math.abs(pX - oX) < (pWidth + 2.8) / 2 && Math.abs(pZ - oZ) < (pDepth + 0.5) / 2) {
+                        if (pY + pHeight > 2.2) { if(!isInvincible) { loseGame(); return; } }
                     }
                 }
             }
-
             for(let coin of coins) {
                 if(!coin.userData.active) continue;
-                const intersectX = Math.abs(pX - coin.position.x) < 1.0;
-                const intersectZ = Math.abs(pZ - coin.position.z) < 1.0;
-                const intersectY = pY < coin.position.y + 1.5;
-                
-                if(intersectX && intersectZ && intersectY) {
-                    coin.userData.active = false; 
-                    coin.visible = false;
-                    coin.position.z = 100; 
-                    matchCoins += 1; 
-                    document.getElementById('coins-val').innerText = matchCoins;
+                if(Math.abs(pX - coin.position.x) < 1.0 && Math.abs(pZ - coin.position.z) < 1.0 && pY < coin.position.y + 1.5) {
+                    coin.userData.active = false; coin.visible = false; coin.position.z = 100; 
+                    matchCoins += 1; document.getElementById('coins-val').innerText = matchCoins;
                 }
             }
         }
@@ -992,68 +895,113 @@
             document.getElementById('side-buttons').classList.add('hidden');
             document.getElementById('bottom-ui').classList.add('hidden');
             
-            targetRotationY = Math.PI; 
-            matchCoins = 0; 
-            document.getElementById('coins-val').innerText = '0'; 
-            
-            playerGroup.position.set(0, 0, 0); 
-            playerGroup.scale.y = 1;
-            camera.position.set(0, 7, 12);
-            
-            targetX = 0; currentLane = 0; 
-            obstacleTimer = 0; coinTimer = 0;
-            velocityY = 0; isJumping = false; isSliding = false; currentGroundY = 0;
+            targetRotationY = Math.PI; matchCoins = 0; document.getElementById('coins-val').innerText = '0'; 
+            playerGroup.position.set(0, 0, 0); playerGroup.scale.y = 1; camera.position.set(0, 7, 12);
+            targetX = 0; currentLane = 0; obstacleTimer = 0; coinTimer = 0; velocityY = 0; isJumping = false; isSliding = false; currentGroundY = 0;
 
             obstacles.forEach(o => { o.userData.active = false; o.position.z = 100; o.visible = false; }); 
             coins.forEach(c => { c.userData.active = false; c.position.z = 100; c.visible = false; }); 
             buildings.forEach(b => { b.userData.active = false; b.position.z = 100; b.visible = false; });
             
             let sleepIdx = 0;
-            for(let i=0; i<40; i++) {
-                lanesX.forEach(x => {
-                    if(sleepers.children[sleepIdx]) sleepers.children[sleepIdx].position.z = -i*5;
-                    sleepIdx++;
-                });
-            }
+            for(let i=0; i<40; i++) { lanesX.forEach(x => { if(sleepers.children[sleepIdx]) sleepers.children[sleepIdx].position.z = -i*5; sleepIdx++; }); }
 
             gameSpeed = CONSTANT_SPEED; isGameRunning = true;
             
             if(isMultiplayer && currentRoom) {
-                update(ref(db, `rooms/${currentRoom}`), { status: 'playing' });
-                update(ref(db, `rooms/${currentRoom}/${myNumId === opponentData?.p1 ? 'p1State' : 'p2State'}`), { alive: true });
+                get(ref(db, `rooms/${currentRoom}`)).then(snap => {
+                    const r = snap.val();
+                    if(r) {
+                        const myKey = r.p1 === myNumId ? 'p1State' : 'p2State';
+                        update(ref(db, `rooms/${currentRoom}`), { status: 'playing' });
+                        update(ref(db, `rooms/${currentRoom}/${myKey}`), { 
+                            alive: true, name: myName, vMsg: victoryMessage, coins: 0 
+                        });
+                    }
+                });
             }
         }
 
-        function loseGame() {
-            isGameRunning = false; gameSpeed = 0; 
-            targetRotationY = 0; 
-            showNotification("لقد خسرت الجولة!");
+        // ================== نظام إظهار النتيجة ==================
+        window.showResultModal = function(winnerName, winnerCoins, loserName, loserCoins, tauntMsg, isWinner) {
+            document.getElementById('first-place-name').innerText = winnerName;
+            document.getElementById('first-place-coins').innerText = `💰 أخذ كل الذهب: ${winnerCoins}`;
+            document.getElementById('second-place-name').innerText = loserName;
+            document.getElementById('second-place-coins').innerText = `🪙 النقاط المجمعة: ${loserCoins} (ذهبت للفائز)`;
+            document.getElementById('taunt-msg').innerText = tauntMsg;
             
-            document.getElementById('start-prompt').classList.remove('hidden'); document.getElementById('start-prompt').innerText = "اضغط في أي مكان للبدء";
-            document.getElementById('side-buttons').classList.remove('hidden'); document.getElementById('bottom-ui').classList.remove('hidden');
+            document.getElementById('result-modal').classList.add('active');
+        }
 
+        window.closeResultModal = function() {
+            document.getElementById('result-modal').classList.remove('active');
+            
+            // إعادة إظهار واجهة البداية
+            document.getElementById('start-prompt').classList.remove('hidden'); 
+            document.getElementById('start-prompt').innerText = "اضغط في أي مكان للبدء مجدداً";
+            document.getElementById('side-buttons').classList.remove('hidden'); 
+            document.getElementById('bottom-ui').classList.remove('hidden');
+            
+            if(isMultiplayer) {
+                isMultiplayer = false; opponentGroup.visible = false; 
+                if(currentRoom) remove(ref(db, `rooms/${currentRoom}`)); 
+                currentRoom = null;
+            }
+        }
+
+        // عندما يفوز اللاعب
+        function winGame(oppCoins) {
+            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; 
+            
+            // الفائز يأخذ كل شيء! (نقاطي + نقاط الخصم)
+            const total = matchCoins + oppCoins; 
+            savedCoins += total; 
+            saveUserData();
+            document.getElementById('coins-val').innerText = savedCoins; 
+            
+            // عرض نافذة النتيجة
+            showResultModal(
+                myName, total, // أنا الفائز
+                opponentData.name || 'الخصم', oppCoins, // الخصم خاسر
+                victoryMessage, // رسالتي
+                true
+            );
+        }
+
+        // عندما يخسر اللاعب
+        function loseGame() {
+            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; 
+            
             if(isMultiplayer && currentRoom) {
-                get(ref(db, `rooms/${currentRoom}`)).then(snap => { const r = snap.val(); if(r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { alive: false, coins: matchCoins }); });
+                // أنا الخاسر، لن أحصل على نقاط.. وتذهب الجائزة كلها للخصم
+                let oppCoins = opponentData.coins || 0;
+                let totalPool = matchCoins + oppCoins;
+                
+                get(ref(db, `rooms/${currentRoom}`)).then(snap => { 
+                    const r = snap.val(); 
+                    if(r) {
+                        const myKey = r.p1 === myNumId ? 'p1State' : 'p2State';
+                        update(ref(db, `rooms/${currentRoom}/${myKey}`), { alive: false, coins: matchCoins }); 
+                    }
+                });
+                
+                // إظهار نافذة النتيجة (رسالة الخصم تظهر لي)
+                showResultModal(
+                    opponentData.name || 'الخصم', totalPool, // الخصم فاز بكل النقاط
+                    myName, matchCoins, // أنا خسرتهن
+                    opponentData.vMsg || "فزت عليك!", // رسالة الخصم المستفزة
+                    false
+                );
             } else { 
+                // اللعب الفردي
                 savedCoins += matchCoins; 
                 saveUserData(); 
                 document.getElementById('coins-val').innerText = savedCoins; 
+                document.getElementById('start-prompt').classList.remove('hidden'); 
+                document.getElementById('start-prompt').innerText = "لقد خسرت! اضغط للبدء مجدداً";
+                document.getElementById('side-buttons').classList.remove('hidden'); 
+                document.getElementById('bottom-ui').classList.remove('hidden');
             }
-        }
-
-        function winGame(oppCoins) {
-            isGameRunning = false; gameSpeed = 0; 
-            targetRotationY = 0; 
-            const total = matchCoins + oppCoins; savedCoins += total; saveUserData();
-            document.getElementById('coins-val').innerText = savedCoins; 
-            
-            document.getElementById('side-buttons').classList.remove('hidden'); document.getElementById('bottom-ui').classList.remove('hidden');
-            showNotification(`الفوز! حصدت ${total} ذهبة`);
-            
-            setTimeout(()=> { alert(`رسالة الخصم: ${opponentData.victoryMsg || "لا توجد رسالة"}`); }, 500);
-            
-            isMultiplayer = false; opponentGroup.visible = false; remove(ref(db, `rooms/${currentRoom}`)); currentRoom = null;
-            document.getElementById('start-prompt').classList.remove('hidden'); document.getElementById('start-prompt').innerText = "اضغط للعب مجدداً";
         }
 
         let lastSync = 0;
@@ -1071,10 +1019,8 @@
 
                 if(!isJumping && !isSliding) {
                     runAnimTime += 0.4;
-                    // تحريك الأقدام
                     playerGroup.getObjectByName("lLeg").rotation.x = Math.sin(runAnimTime) * 0.7;
                     playerGroup.getObjectByName("rLeg").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
-                    // تحريك الأذرع (من مفصل الكتف) بعكس الأقدام 
                     playerGroup.getObjectByName("lArmGroup").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
                     playerGroup.getObjectByName("rArmGroup").rotation.x = Math.sin(runAnimTime) * 0.7;
                 } else {
@@ -1082,64 +1028,42 @@
                     playerGroup.getObjectByName("lArmGroup").rotation.x = 0; playerGroup.getObjectByName("rArmGroup").rotation.x = 0;
                 }
 
-                // إصلاح المنظور: جعل الكاميرا تتبع حركة اللاعب قليلاً لمنع الخداع البصري بتحرك القطارات يميناً ويساراً
                 camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
                 camera.position.y = playerGroup.position.y + 7;
 
                 sleepers.children.forEach(s => { s.position.z += gameSpeed; if(s.position.z > camera.position.z + 10) s.position.z -= 200; });
                 
-                // تحديث حركة وإخفاء القطارات والموانع بشكل قطعي ومثالي
                 obstacles.forEach(o => { 
                     if(o.userData.active) { 
-                        // القطار يقترب نحوك بواقعية (أسرع من حركة الأرض)
-                        const extraSpeed = o.userData.type === 'train' ? 0.3 : 0;
-                        o.position.z += gameSpeed + extraSpeed; 
-                        
-                        // الإخفاء القسري عند تجاوز الكاميرا لضمان عدم بقائها خلفك
-                        if(o.position.z > camera.position.z + 30) {
-                            o.userData.active = false;
-                            o.visible = false;
-                            o.position.z = 100;
-                        } 
-                    } else {
-                        o.visible = false;
-                    }
+                        const extraSpeed = o.userData.type === 'train' ? 0.3 : 0; o.position.z += gameSpeed + extraSpeed; 
+                        if(o.position.z > camera.position.z + 30) { o.userData.active = false; o.visible = false; o.position.z = 100; } 
+                    } else { o.visible = false; }
                 });
                 
                 buildings.forEach(b => { 
-                    if(b.userData.active) { 
-                        b.position.z += gameSpeed; 
-                        if(b.position.z > camera.position.z + 20) { 
-                            b.userData.active = false; 
-                            b.visible = false; 
-                            b.position.z = 100;
-                        } 
+                    if(b.userData.active) { b.position.z += gameSpeed; if(b.position.z > camera.position.z + 20) { b.userData.active = false; b.visible = false; b.position.z = 100; } 
                     } else { b.visible = false; } 
                 });
                 
                 coins.forEach(c => { 
-                    if(c.userData.active) { 
-                        c.position.z += gameSpeed; c.rotation.y += 0.1; 
-                        if(c.position.z > camera.position.z + 10) {
-                            c.userData.active = false; 
-                            c.visible = false;
-                            c.position.z = 100;
-                        } 
+                    if(c.userData.active) { c.position.z += gameSpeed; c.rotation.y += 0.1; if(c.position.z > camera.position.z + 10) { c.userData.active = false; c.visible = false; c.position.z = 100; } 
                     } else { c.visible = false; }
                 });
 
                 spawnObjects(); checkCollisions();
 
+                // مزامنة مستمرة للذهب والموقع مع الخصم
                 if(isMultiplayer && currentRoom && time - lastSync > 100) {
                     lastSync = time;
                     get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                         const r = snap.val();
-                        if(r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { x: playerGroup.position.x, y: playerGroup.position.y, z: playerGroup.position.z });
+                        if(r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { 
+                            x: playerGroup.position.x, y: playerGroup.position.y, z: playerGroup.position.z, coins: matchCoins 
+                        });
                     });
                 }
             } else {
                 playerGroup.position.x = Math.sin(time * 0.002) * 0.1;
-                // تحديث الكاميرا في واجهة البداية أيضاً
                 camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
             }
             renderer.render(scene, camera);
