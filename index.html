@@ -3,103 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Subway Run 3D - Full Version</title>
+    <title>Subway Run 3D - Ultra Realistic</title>
     <style>
-        /* ================== الإعدادات الأساسية ================== */
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; touch-action: none; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
-        #game-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; cursor: pointer; }
-        
-        /* ================== واجهة المستخدم (UI) ================== */
-        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background-color: #87CEEB; touch-action: none; user-select: none;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            -webkit-tap-highlight-color: transparent; outline: none;
+        }
+        #game-container {
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; cursor: pointer;
+        }
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; transition: opacity 0.3s;
+        }
         .hidden { display: none !important; opacity: 0; pointer-events: none; }
-
-        .top-ui { position: absolute; top: 15px; width: 100%; display: flex; justify-content: flex-start; padding: 0 15px; box-sizing: border-box; pointer-events: none; }
-        .side-buttons { position: absolute; left: 15px; display: flex; flex-direction: column; gap: 8px; transition: 0.3s; pointer-events: auto; }
-        .ui-btn { background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 10px 15px; border-radius: 15px; font-weight: bold; cursor: pointer; backdrop-filter: blur(8px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s; }
+        .top-ui {
+            position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-between;
+            padding: 0 15px; box-sizing: border-box; pointer-events: none;
+        }
+        .side-buttons {
+            display: flex; flex-direction: column; gap: 8px; pointer-events: auto;
+        }
+        .ui-btn {
+            background: rgba(0, 0, 0, 0.5); border: 2px solid rgba(255,255,255,0.3); color: white;
+            padding: 10px 15px; border-radius: 15px; font-weight: bold; cursor: pointer;
+            backdrop-filter: blur(8px); box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex;
+            align-items: center; gap: 8px; font-size: 14px; transition: 0.2s;
+        }
         .ui-btn:active { transform: scale(0.9); background: rgba(0,255,204,0.3); border-color: #00ffcc; }
-        
-        .coins-display { position: absolute; right: 15px; background: linear-gradient(45deg, #ffd700, #ffaa00); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 900; font-size: 20px; box-shadow: 0 4px 10px rgba(255,215,0,0.4); height: fit-content; display: flex; align-items: center; gap: 5px; pointer-events: auto; }
-
-        .bottom-ui { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; pointer-events: auto; padding: 0 10px; box-sizing: border-box; }
-        .cust-btn { background: rgba(20, 20, 30, 0.8); border: 2px solid #00ffcc; color: white; border-radius: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 255, 204, 0.2); width: 75px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; transition: 0.1s; backdrop-filter: blur(5px); }
+        .coins-display {
+            background: linear-gradient(45deg, #ffd700, #ffaa00); color: #000; padding: 8px 20px;
+            border-radius: 20px; font-weight: 900; font-size: 20px; box-shadow: 0 4px 10px rgba(255,215,0,0.4);
+            height: fit-content; display: flex; align-items: center; gap: 5px; pointer-events: auto;
+        }
+        .bottom-ui {
+            position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: center;
+            align-items: center; gap: 10px; pointer-events: auto; padding: 0 10px; box-sizing: border-box;
+        }
+        .cust-btn {
+            background: rgba(20, 20, 30, 0.7); border: 2px solid #00ffcc; color: white; border-radius: 18px;
+            font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0, 255, 204, 0.2); width: 75px; height: 75px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px;
+            transition: 0.1s; backdrop-filter: blur(5px);
+        }
         .cust-btn:active { transform: scale(0.9); }
         .cust-btn i { font-size: 28px; margin-bottom: 5px; font-style: normal; }
-        
-        #start-prompt { position: absolute; top: 25%; left: 50%; transform: translateX(-50%); color: white; font-size: 26px; font-weight: 900; text-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc; text-align: center; pointer-events: none; animation: pulse 1.2s infinite; }
-        @keyframes pulse { 0% { transform: translateX(-50%) scale(0.95); opacity: 0.8; } 50% { transform: translateX(-50%) scale(1.05); opacity: 1; } 100% { transform: translateX(-50%) scale(0.95); opacity: 0.8; } }
-
-        #countdown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 100; color: #00ffcc; font-size: 120px; display: flex; justify-content: center; align-items: center; font-weight: 900; text-shadow: 0 0 30px #00ffcc; backdrop-filter: blur(5px); transition: 0.3s; pointer-events: none; }
-
-        /* ================== النوافذ المنبثقة ================== */
-        .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); z-index: 20; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(3px); }
+        #start-prompt {
+            position: absolute; top: 25%; left: 50%; transform: translateX(-50%); color: white;
+            font-size: 26px; font-weight: 900; text-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc;
+            text-align: center; pointer-events: none; animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(0.95); opacity: 0.8; }
+            50% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+            100% { transform: translateX(-50%) scale(0.95); opacity: 0.8; }
+        }
+        #countdown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8);
+            z-index: 100; color: #00ffcc; font-size: 120px; display: flex; justify-content: center;
+            align-items: center; font-weight: 900; text-shadow: 0 0 30px #00ffcc; backdrop-filter: blur(5px);
+            transition: 0.3s; pointer-events: none;
+        }
+        .modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* شفافة اكثر لرؤية اللاعب خلفها */
+            z-index: 20; display: flex; justify-content: flex-end; align-items: flex-end;
+            flex-direction: column; opacity: 0; pointer-events: none; transition: 0.3s;
+            padding-bottom: 20px;
+        }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: #1a1a2e; border: 2px solid #00ffcc; padding: 25px; border-radius: 25px; width: 85%; max-width: 380px; color: white; text-align: center; position: relative; box-shadow: 0 15px 35px rgba(0, 255, 204, 0.2); max-height: 80vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 12px; right: 15px; font-size: 26px; cursor: pointer; color: #ff0055; background: rgba(255,0,85,0.1); width: 35px; height: 35px; border-radius: 50%; line-height: 35px; font-weight: bold; }
-        
-        .modal input, .modal select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: #fff; outline: none; text-align: center; font-weight: bold; font-family: inherit; font-size: 16px; box-sizing: border-box;}
-        .save-btn { background: linear-gradient(45deg, #00ffcc, #00aaff); color: #000; padding: 12px 0; width: 100%; border: none; border-radius: 15px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
+        .modal-content {
+            background: rgba(26, 26, 46, 0.85); border: 2px solid #00ffcc; padding: 25px;
+            border-radius: 25px; width: 90%; max-width: 400px; color: white; text-align: center;
+            position: relative; box-shadow: 0 15px 35px rgba(0, 255, 204, 0.3); max-height: 80vh;
+            overflow-y: auto; margin: 0 auto; backdrop-filter: blur(10px);
+        }
+        .close-btn {
+            position: absolute; top: 12px; right: 15px; font-size: 26px; cursor: pointer; color: #ff0055;
+            background: rgba(255,0,85,0.1); width: 35px; height: 35px; border-radius: 50%;
+            line-height: 35px; font-weight: bold;
+        }
+        .modal input, .modal select {
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.5); color: #fff; outline: none; text-align: center; font-weight: bold;
+            font-family: inherit; font-size: 16px; box-sizing: border-box;
+        }
+        .save-btn {
+            background: linear-gradient(45deg, #00ffcc, #00aaff); color: #000; padding: 12px 0; width: 100%;
+            border: none; border-radius: 15px; font-weight: 900; cursor: pointer; margin-top: 15px;
+            font-size: 16px; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,255,204,0.3);
+        }
         .save-btn:active { transform: scale(0.95); }
-
+        .style-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; }
+        .style-btn {
+            background: rgba(255,255,255,0.1); border: 2px solid transparent; color: white;
+            padding: 10px 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold;
+        }
+        .style-btn.active, .style-btn:hover { border-color: #00ffcc; background: rgba(0,255,204,0.2); }
         .color-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
-        .swatch { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255,255,255,0.2); transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        .swatch {
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255,255,255,0.2);
+            transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
         .swatch:hover, .swatch.active { border-color: #00ffcc; transform: scale(1.1); }
-
-        .friend-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .friend-box {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px;
+            padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
         .friend-name { font-weight: bold; color: #fff; font-size: 16px; display: block; text-align: right; }
         .friend-id { font-size: 11px; color: #aaa; }
-        .btn-small { background: #ff00aa; color: #fff; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-small {
+            background: #ff00aa; color: #fff; border: none; padding: 6px 12px; border-radius: 10px;
+            font-weight: bold; cursor: pointer; font-size: 12px;
+        }
         .btn-small.green { background: #00ffcc; color: #000; }
-        
-        #notification { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); background: #ff0055; color: white; padding: 12px 25px; border-radius: 20px; font-size: 16px; font-weight: bold; z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,0,85,0.4); }
-
-        /* نافذة نتيجة المباراة */
-        #result-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 150; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.5s; backdrop-filter: blur(5px); }
+        #notification {
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%); background: #ff0055;
+            color: white; padding: 12px 25px; border-radius: 20px; font-size: 16px; font-weight: bold;
+            z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 5px 15px rgba(255,0,85,0.4);
+        }
+        #result-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85);
+            z-index: 150; display: flex; justify-content: center; align-items: center; opacity: 0;
+            pointer-events: none; transition: 0.5s; backdrop-filter: blur(5px);
+        }
         #result-overlay.active { opacity: 1; pointer-events: auto; }
-        #result-box { background: linear-gradient(135deg, #1a1a2e, #16213e); border: 3px solid #ffd700; padding: 30px; border-radius: 30px; width: 85%; max-width: 400px; color: white; text-align: center; box-shadow: 0 20px 50px rgba(255, 215, 0, 0.3); }
+        #result-box {
+            background: linear-gradient(135deg, #1a1a2e, #16213e); border: 3px solid #ffd700; padding: 30px;
+            border-radius: 30px; width: 85%; max-width: 400px; color: white; text-align: center;
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.3);
+        }
         #result-box h2 { margin: 0 0 15px 0; font-size: 28px; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.5); }
-        .rank-item { background: rgba(255,255,255,0.08); border-radius: 15px; padding: 15px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; border: 2px solid rgba(255,255,255,0.15); }
+        .rank-item {
+            background: rgba(255,255,255,0.08); border-radius: 15px; padding: 15px; margin: 10px 0;
+            display: flex; justify-content: space-between; align-items: center; border: 2px solid rgba(255,255,255,0.15);
+        }
         .rank-item.first { border-color: #ffd700; background: rgba(255,215,0,0.1); box-shadow: 0 0 20px rgba(255,215,0,0.2); }
-        .rank-item.second { border-color: #c0c0c0; background: rgba(192,192,192,0.1); }
         .rank-badge { font-size: 40px; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 900; }
         .rank-badge.gold { background: #ffd700; color: #000; }
-        .rank-badge.silver { background: #c0c0c0; color: #000; }
         .rank-info { flex: 1; margin: 0 15px; text-align: right; }
         .rank-name { font-weight: 900; font-size: 18px; }
         .rank-points { font-size: 14px; color: #ffd700; margin-top: 3px; }
         .victory-msg-box { background: rgba(0,255,204,0.1); border: 1px solid #00ffcc; border-radius: 15px; padding: 15px; margin-top: 15px; color: #00ffcc; font-weight: bold; font-size: 15px; }
-        #result-close-btn { background: linear-gradient(45deg, #ff0055, #ff4488); color: #fff; border: none; padding: 12px 30px; border-radius: 20px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; width: 100%; transition: 0.2s; }
+        #result-close-btn {
+            background: linear-gradient(45deg, #ff0055, #ff4488); color: #fff; border: none; padding: 12px 30px;
+            border-radius: 20px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; width: 100%; transition: 0.2s;
+        }
         #result-close-btn:active { transform: scale(0.95); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
     <div id="game-container"></div>
-    
     <div id="ui-layer">
         <div class="top-ui">
             <div class="side-buttons" id="side-buttons">
-                <button class="ui-btn" onclick="openModal('settings-modal')">⚙️ الحساب والإعدادات</button>
-                <button class="ui-btn" onclick="openModal('friends-modal')">👥 الأصدقاء <span id="req-badge" style="display:none; background:red; border-radius:50%; padding:2px 6px; font-size:10px;">!</span></button>
-                <button class="ui-btn" onclick="openModal('rooms-modal')">🎮 غرف اللعب</button>
+                <button class="ui-btn" onclick="openModal('settings-modal', 'none')">⚙️ الحساب والإعدادات</button>
+                <button class="ui-btn" onclick="openModal('friends-modal', 'none')">👥 الأصدقاء <span id="req-badge" style="display:none; background:red; border-radius:50%; padding:2px 6px; font-size:10px;">!</span></button>
+                <button class="ui-btn" onclick="openModal('rooms-modal', 'none')">🎮 غرف اللعب</button>
             </div>
             <div class="coins-display">💰 <span id="coins-val">0</span></div>
         </div>
-
         <div id="start-prompt">اضغط في أي مكان للبدء</div>
         <div id="hack-timer" class="hidden" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0, 255, 0, 0.8); color: #000; padding: 5px 20px; border-radius: 12px; font-weight: 900; font-size: 24px; z-index: 100; box-shadow: 0 0 15px #00ff00;">60</div>
-
         <div class="bottom-ui" id="bottom-ui">
-            <button class="cust-btn" onclick="openModal('gender-modal')"><i>🚻</i>الجنس</button>
-            <button class="cust-btn" onclick="openModal('clothes-modal')"><i>👕</i>الملابس</button>
-            <button class="cust-btn" onclick="openModal('hair-modal')"><i>💇</i>اللون</button>
-            <button class="cust-btn" onclick="openModal('face-modal')"><i>👁️</i>الوجه</button>
+            <button class="cust-btn" onclick="openModal('gender-modal', 'body')"><i>🚻</i>الجنس</button>
+            <button class="cust-btn" onclick="openModal('clothes-modal', 'body')"><i>👕</i>الملابس</button>
+            <button class="cust-btn" onclick="openModal('hair-modal', 'head')"><i>💇</i>الشعر</button>
+            <button class="cust-btn" onclick="openModal('face-modal', 'head')"><i>👁️</i>الوجه</button>
         </div>
     </div>
-
     <div id="countdown-overlay" class="hidden">3</div>
-
-    <!-- نافذة نتيجة المباراة -->
     <div id="result-overlay">
         <div id="result-box">
             <h2>🏆 نتيجة المباراة 🏆</h2>
@@ -108,10 +184,9 @@
             <button id="result-close-btn" onclick="closeResultOverlay()">حسناً</button>
         </div>
     </div>
-
     <div id="notification">رسالة</div>
-
-    <!-- الإعدادات -->
+    
+    <!-- Modals -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('settings-modal')">×</span>
@@ -119,7 +194,6 @@
             <p style="font-size: 13px; color: #ccc;">اكتب اسمك ليتم إنشاء حسابك وحفظه دائمًا</p>
             <input type="text" id="player-name" placeholder="أدخل اسمك هنا">
             <input type="text" id="victory-msg-input" placeholder="رسالة الانتصار (تظهر للخصم)">
-            
             <div style="background: rgba(0,255,204,0.1); border: 1px solid #00ffcc; padding: 15px; border-radius: 15px; margin-top: 15px;">
                 <p style="margin: 0; font-size: 12px; color: #00ffcc;">رقم الـ ID الخاص بك (أعطه لأصدقائك)</p>
                 <h1 id="player-id" style="margin: 5px 0 0 0; color: #fff; letter-spacing: 3px;">----</h1>
@@ -127,8 +201,7 @@
             <button class="save-btn" id="save-settings-btn">حفظ الحساب دائمًا</button>
         </div>
     </div>
-
-    <!-- الأصدقاء -->
+    
     <div id="friends-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('friends-modal')">×</span>
@@ -137,19 +210,15 @@
                 <input type="number" id="friend-id-input" placeholder="رقم ID الصديق" style="margin:0;">
                 <button class="save-btn" style="margin:0; width:auto; padding: 0 15px;" id="add-friend-btn">إضافة</button>
             </div>
-            
             <h3 style="text-align: right; margin-bottom: 5px; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 5px; color: #00ffcc;">دعوات اللعب</h3>
             <div id="room-invites-list" style="margin-bottom: 15px;">لا توجد دعوات حالياً.</div>
-
             <h3 style="text-align: right; margin-bottom: 5px; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 5px;">الطلبات الواردة</h3>
             <div id="requests-list" style="margin-bottom: 15px;">لا توجد طلبات صداقة.</div>
-
             <h3 style="text-align: right; margin-bottom: 5px; font-size: 14px; border-bottom: 1px solid #444; padding-bottom: 5px;">قائمة الأصدقاء</h3>
             <div id="friends-list">لا يوجد أصدقاء بعد.</div>
         </div>
     </div>
-
-    <!-- الغرف -->
+    
     <div id="rooms-modal" class="modal">
         <div class="modal-content" id="room-modal-content">
             <span class="close-btn" onclick="closeModal('rooms-modal')">×</span>
@@ -158,36 +227,46 @@
             <button class="save-btn" id="create-room-btn" style="padding: 15px; font-size: 18px;">إنشاء غرفة ودعوة صديق</button>
         </div>
     </div>
-
-    <!-- التخصيص -->
+    
     <div id="gender-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('gender-modal')">×</span>
             <h2>الجنس</h2>
-            <select id="gender-select">
-                <option value="boy">ولد 👦</option>
-                <option value="girl">بنت 👧</option>
-            </select>
-            <button class="save-btn" onclick="updateCustoms('gender', document.getElementById('gender-select').value); closeModal('gender-modal');">حفظ الجنس</button>
+            <div class="style-options">
+                <button class="style-btn" onclick="updateCustoms('gender', 'boy')">ولد 👦</button>
+                <button class="style-btn" onclick="updateCustoms('gender', 'girl')">بنت 👧</button>
+            </div>
         </div>
     </div>
-
+    
     <div id="face-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('face-modal')">×</span>
-            <h2>ملامح الوجه</h2>
-            <select id="face-type">
-                <option value="arab">عربي (عيون واسعة وداكنة)</option>
-                <option value="euro">أوروبي (عيون ملونة)</option>
-                <option value="asian">آسيوي (عيون ضيقة)</option>
-            </select>
-            <button class="save-btn" onclick="updateCustoms('face', document.getElementById('face-type').value); closeModal('face-modal');">حفظ الوجه</button>
+            <h2>ملامح الوجه والعيون</h2>
+            <div class="style-options">
+                <button class="style-btn" onclick="updateCustoms('face', 'arab')">عربي</button>
+                <button class="style-btn" onclick="updateCustoms('face', 'euro')">أوروبي</button>
+                <button class="style-btn" onclick="updateCustoms('face', 'asian')">آسيوي</button>
+            </div>
+            <h2>لون البشرة</h2>
+            <div class="color-grid">
+                <div class="swatch" style="background: #ffe0bd;" onclick="updateCustoms('skin', '#ffe0bd')"></div>
+                <div class="swatch" style="background: #ffcc99;" onclick="updateCustoms('skin', '#ffcc99')"></div>
+                <div class="swatch" style="background: #c68642;" onclick="updateCustoms('skin', '#c68642')"></div>
+                <div class="swatch" style="background: #8d5524;" onclick="updateCustoms('skin', '#8d5524')"></div>
+                <div class="swatch" style="background: #3e2723;" onclick="updateCustoms('skin', '#3e2723')"></div>
+            </div>
         </div>
     </div>
-
+    
     <div id="clothes-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('clothes-modal')">×</span>
+            <h2>شكل الملابس</h2>
+            <div class="style-options">
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'tshirt')">تيشرت صيفي</button>
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'longsleeve')">قميص طويل</button>
+            </div>
             <h2>لون الملابس</h2>
             <div class="color-grid">
                 <div class="swatch" style="background: #0055ff;" onclick="updateCustoms('clothes', '#0055ff');"></div>
@@ -197,20 +276,17 @@
                 <div class="swatch" style="background: #111111;" onclick="updateCustoms('clothes', '#111111');"></div>
                 <div class="swatch" style="background: #ffffff;" onclick="updateCustoms('clothes', '#ffffff');"></div>
             </div>
-            <button class="save-btn" onclick="closeModal('clothes-modal')">حفظ الملابس</button>
         </div>
     </div>
-
+    
     <div id="hair-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('hair-modal')">×</span>
-            <h2>لون البشرة</h2>
-            <div class="color-grid" style="margin-bottom: 20px;">
-                <div class="swatch" style="background: #ffe0bd;" onclick="updateCustoms('skin', '#ffe0bd')"></div>
-                <div class="swatch" style="background: #ffcc99;" onclick="updateCustoms('skin', '#ffcc99')"></div>
-                <div class="swatch" style="background: #c68642;" onclick="updateCustoms('skin', '#c68642')"></div>
-                <div class="swatch" style="background: #8d5524;" onclick="updateCustoms('skin', '#8d5524')"></div>
-                <div class="swatch" style="background: #3e2723;" onclick="updateCustoms('skin', '#3e2723')"></div>
+            <h2>قصة الشعر</h2>
+            <div class="style-options">
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'short')">قصير عادي</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'spiky')">سبايكي</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'pony')">طويل (بناتي)</button>
             </div>
             <h2>لون الشعر</h2>
             <div class="color-grid">
@@ -219,28 +295,10 @@
                 <div class="swatch" style="background: #faf0be;" onclick="updateCustoms('hair', '#faf0be')"></div>
                 <div class="swatch" style="background: #7b291c;" onclick="updateCustoms('hair', '#7b291c')"></div>
                 <div class="swatch" style="background: #ffffff;" onclick="updateCustoms('hair', '#ffffff')"></div>
+                <div class="swatch" style="background: #ff0055;" onclick="updateCustoms('hair', '#ff0055')"></div>
             </div>
-            <button class="save-btn" onclick="closeModal('hair-modal')">حفظ اللون</button>
         </div>
     </div>
-
-    <script>
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function showNotification(msg) {
-            const notif = document.getElementById('notification');
-            notif.innerText = msg; notif.style.opacity = 1;
-            setTimeout(() => { notif.style.opacity = 0; }, 3000);
-        }
-        function closeResultOverlay() {
-            document.getElementById('result-overlay').classList.remove('active');
-            document.getElementById('start-prompt').classList.remove('hidden');
-            document.getElementById('start-prompt').innerText = "اضغط للعب مجدداً";
-            document.getElementById('side-buttons').classList.remove('hidden');
-            document.getElementById('bottom-ui').classList.remove('hidden');
-        }
-        window.isCountingDown = false;
-    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -260,46 +318,123 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
+        // متغيرات النظام
         let uid = null;
         let myNumId = null;
         let myName = "لاعب";
         let savedCoins = 0;
         let victoryMessage = "لقد فزت! 👑";
-        let customizations = { gender: 'boy', clothes: '#0055ff', skin: '#ffcc99', hair: '#090806', face: 'arab' };
-        
+        let customizations = {
+            gender: 'boy',
+            clothes: '#0055ff',
+            clothesStyle: 'tshirt',
+            skin: '#ffcc99',
+            hair: '#090806',
+            hairStyle: 'short',
+            face: 'arab'
+        };
+
+        // متغيرات الكاميرا للعرض السينمائي اثناء التعديل
+        let targetCameraPos = new THREE.Vector3(0, 7, 12);
+        let targetCameraLookAt = new THREE.Vector3(0, 2, 0);
+        let currentCameraLookAt = new THREE.Vector3(0, 2, 0);
+        let isCameraFocused = false;
+
+        window.openModal = function(id, focusType) {
+            document.getElementById('ui-layer').style.opacity = '0';
+            document.getElementById(id).classList.add('active');
+            isCameraFocused = true;
+            if(focusType === 'head') {
+                targetCameraPos.set(0, 3.5, 3.5);
+                targetCameraLookAt.set(0, 3.0, 0);
+            } else if(focusType === 'body') {
+                targetCameraPos.set(0, 2.5, 5);
+                targetCameraLookAt.set(0, 1.5, 0);
+            } else {
+                targetCameraPos.set(0, 7, 12);
+                targetCameraLookAt.set(0, 2, 0);
+            }
+        }
+
+        window.closeModal = function(id) {
+            document.getElementById('ui-layer').style.opacity = '1';
+            document.getElementById(id).classList.remove('active');
+            isCameraFocused = false;
+            targetCameraPos.set(0, 7, 12);
+            targetCameraLookAt.set(0, 2, 0);
+        }
+
+        window.showNotification = function(msg) {
+            const notif = document.getElementById('notification');
+            notif.innerText = msg;
+            notif.style.opacity = 1;
+            setTimeout(() => { notif.style.opacity = 0; }, 3000);
+        }
+
+        window.closeResultOverlay = function() {
+            document.getElementById('result-overlay').classList.remove('active');
+            document.getElementById('start-prompt').classList.remove('hidden');
+            document.getElementById('start-prompt').innerText = "اضغط للعب مجدداً";
+            document.getElementById('side-buttons').classList.remove('hidden');
+            document.getElementById('bottom-ui').classList.remove('hidden');
+        }
+
+        // ================== نظام الـ Cache لتحميل أسرع من ثانية ==================
+        function loadLocalCache() {
+            const localData = localStorage.getItem('subway_run_cache');
+            if (localData) {
+                const data = JSON.parse(localData);
+                myName = data.name || myName;
+                savedCoins = data.coins || 0;
+                victoryMessage = data.victoryMsg || victoryMessage;
+                if(data.customs) customizations = data.customs;
+                
+                document.getElementById('coins-val').innerText = savedCoins;
+                document.getElementById('player-name').value = myName;
+                document.getElementById('victory-msg-input').value = victoryMessage;
+            }
+        }
+        loadLocalCache(); // تطبيق مباشر قبل الفايربيس للسرعة
+
+        window.updateCustoms = function(key, val) {
+            customizations[key] = val;
+            
+            // ربط ذكي: إذا تم اختيار بنت، نغير الشعر افتراضياً للطويل
+            if(key === 'gender' && val === 'girl') customizations.hairStyle = 'pony';
+            if(key === 'gender' && val === 'boy') customizations.hairStyle = 'short';
+
+            updateCharacterVisuals();
+            saveUserData();
+        };
+
         let currentRoom = null;
         let isMultiplayer = false;
         let opponentData = null;
         let matchCoins = 0;
         let myAlive = true;
         let gameEnded = false;
-
-        window.updateCustoms = function(key, val) {
-            customizations[key] = val;
-            updateCharacterVisuals();
-            saveUserData();
-        };
+        window.isCountingDown = false;
 
         signInAnonymously(auth);
-        
+
         const localSavedId = localStorage.getItem('subway_run_persistent_id');
-        if(localSavedId) {
+        if (localSavedId) {
             myNumId = parseInt(localSavedId);
             document.getElementById('player-id').innerText = myNumId;
-            loadUserData();
+            loadUserDataFirebase();
             listenToFriends();
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 uid = user.uid;
-                if(!myNumId) {
+                if (!myNumId) {
                     const mapSnap = await get(ref(db, `uid_map/${uid}`));
                     if (mapSnap.exists()) {
                         myNumId = mapSnap.val();
                         localStorage.setItem('subway_run_persistent_id', myNumId);
                         document.getElementById('player-id').innerText = myNumId;
-                        loadUserData();
+                        loadUserDataFirebase();
                         listenToFriends();
                     }
                 }
@@ -308,58 +443,64 @@
 
         document.getElementById('save-settings-btn').addEventListener('click', async () => {
             const nameInput = document.getElementById('player-name').value;
-            if(!nameInput) return showNotification("الرجاء كتابة اسمك أولاً!");
-            
+            if (!nameInput) return showNotification("الرجاء كتابة اسمك أولاً!");
             myName = nameInput;
             victoryMessage = document.getElementById('victory-msg-input').value || victoryMessage;
-
             if (!myNumId) {
                 myNumId = Math.floor(100000 + Math.random() * 900000);
                 localStorage.setItem('subway_run_persistent_id', myNumId);
-                if(uid) await set(ref(db, `uid_map/${uid}`), myNumId);
+                if (uid) await set(ref(db, `uid_map/${uid}`), myNumId);
                 document.getElementById('player-id').innerText = myNumId;
                 listenToFriends();
             }
-            
             saveUserData();
             closeModal('settings-modal');
-            showNotification("تم حفظ الحساب بنجاح! ولن يختفي.");
+            showNotification("تم حفظ الحساب بنجاح!");
         });
 
         function saveUserData() {
-            if(!myNumId) return;
-            set(ref(db, `users/${myNumId}`), {
+            // حفظ بذاكرة الهاتف لسرعة التحميل بالمرة القادمة
+            localStorage.setItem('subway_run_cache', JSON.stringify({
                 name: myName, coins: savedCoins, victoryMsg: victoryMessage, customs: customizations
+            }));
+
+            if (!myNumId) return;
+            // حل مشكلة حذف الأصدقاء: استخدام update بدلاً من set لعدم مسح البيانات الأخرى
+            update(ref(db, `users/${myNumId}`), {
+                name: myName,
+                coins: savedCoins,
+                victoryMsg: victoryMessage,
+                customs: customizations
             });
         }
 
-        function loadUserData() {
+        function loadUserDataFirebase() {
             onValue(ref(db, `users/${myNumId}`), (snapshot) => {
                 const data = snapshot.val();
-                if(data) {
+                if (data) {
                     savedCoins = data.coins || 0;
-                    if(!isGameRunning) document.getElementById('coins-val').innerText = savedCoins;
+                    if (!isGameRunning) document.getElementById('coins-val').innerText = savedCoins;
                     myName = data.name || myName;
                     document.getElementById('player-name').value = myName;
                     victoryMessage = data.victoryMsg || victoryMessage;
                     document.getElementById('victory-msg-input').value = victoryMessage;
-                    if(data.customs) {
+                    if (data.customs) {
                         customizations = data.customs;
-                        document.getElementById('gender-select').value = customizations.gender;
-                        document.getElementById('face-type').value = customizations.face;
                         updateCharacterVisuals();
                     }
+                    localStorage.setItem('subway_run_cache', JSON.stringify({
+                        name: myName, coins: savedCoins, victoryMsg: victoryMessage, customs: customizations
+                    }));
                 }
             }, { onlyOnce: true });
         }
 
-        // ================== نظام الأصدقاء والدعوات ==================
+        // ================== نظام الأصدقاء المعالج ==================
         document.getElementById('add-friend-btn').addEventListener('click', async () => {
             const targetId = document.getElementById('friend-id-input').value;
-            if(!targetId || targetId == myNumId) return showNotification("ID غير صالح!");
-            
+            if (!targetId || targetId == myNumId) return showNotification("ID غير صالح!");
             const targetSnap = await get(ref(db, `users/${targetId}`));
-            if(targetSnap.exists()) {
+            if (targetSnap.exists()) {
                 await set(ref(db, `users/${targetId}/requests/${myNumId}`), myName);
                 showNotification("تم إرسال طلب الصداقة بنجاح!");
             } else {
@@ -371,18 +512,15 @@
         let hasRoomReqs = false;
 
         function updateBadge() {
-            if(hasFriendReqs || hasRoomReqs) document.getElementById('req-badge').style.display = 'inline-block';
-            else document.getElementById('req-badge').style.display = 'none';
+            document.getElementById('req-badge').style.display = (hasFriendReqs || hasRoomReqs) ? 'inline-block' : 'none';
         }
 
         function listenToFriends() {
-            if(!myNumId) return;
-            
-            // مستمع طلبات الصداقة
+            if (!myNumId) return;
             onValue(ref(db, `users/${myNumId}/requests`), (snap) => {
                 const reqBox = document.getElementById('requests-list');
                 reqBox.innerHTML = '';
-                if(snap.exists()) {
+                if (snap.exists()) {
                     hasFriendReqs = true;
                     snap.forEach(child => {
                         const rId = child.key; const rName = child.val();
@@ -402,11 +540,10 @@
                 updateBadge();
             });
 
-            // مستمع دعوات الغرف
             onValue(ref(db, `users/${myNumId}/room_invites`), (snap) => {
                 const invBox = document.getElementById('room-invites-list');
                 invBox.innerHTML = '';
-                if(snap.exists()) {
+                if (snap.exists()) {
                     hasRoomReqs = true;
                     snap.forEach(child => {
                         const hostId = child.key; const data = child.val();
@@ -423,11 +560,10 @@
                 updateBadge();
             });
 
-            // قائمة الأصدقاء - دائمة لا تنحذف
             onValue(ref(db, `users/${myNumId}/friends`), (snap) => {
                 const fBox = document.getElementById('friends-list');
                 fBox.innerHTML = '';
-                if(snap.exists()) {
+                if (snap.exists()) {
                     snap.forEach(child => {
                         const fId = child.key; const fName = child.val();
                         fBox.innerHTML += `
@@ -442,29 +578,21 @@
         }
 
         window.acceptReq = async function(fId, fName) {
-            // حفظ الصداقة للطرفين بشكل دائم
             await set(ref(db, `users/${myNumId}/friends/${fId}`), fName);
             await set(ref(db, `users/${fId}/friends/${myNumId}`), myName);
-            // حذف الطلب فقط
             await remove(ref(db, `users/${myNumId}/requests/${fId}`));
             showNotification("أصبحتم أصدقاء! ✅");
         };
-        window.rejectReq = async function(fId) { 
-            await remove(ref(db, `users/${myNumId}/requests/${fId}`)); 
-        };
+        window.rejectReq = async function(fId) { await remove(ref(db, `users/${myNumId}/requests/${fId}`)); };
 
-        // ================== نظام الغرف والعد التنازلي ==================
+        // ================== نظام الغرف ==================
         document.getElementById('create-room-btn').addEventListener('click', () => {
-            if(!myNumId) return showNotification("قم بإنشاء حساب أولاً من الإعدادات");
-            
+            if (!myNumId) return showNotification("قم بإنشاء حساب أولاً من الإعدادات");
             const roomId = 'room_' + myNumId + '_' + Date.now();
             currentRoom = roomId;
-            set(ref(db, `rooms/${roomId}`), { 
-                p1: myNumId, 
-                p1Name: myName,
-                status: 'waiting', 
-                p1State: { alive: true, x: 0, y: 0, z: 0, coins: 0 },
-                gameEnded: false
+            set(ref(db, `rooms/${roomId}`), {
+                p1: myNumId, p1Name: myName, status: 'waiting', gameEnded: false,
+                p1State: { alive: true, x: 0, y: 0, z: 0, coins: 0 }
             });
             onDisconnect(ref(db, `rooms/${roomId}`)).remove();
             
@@ -472,14 +600,13 @@
             roomContent.innerHTML = `
                 <span class="close-btn" onclick="closeModal('rooms-modal'); location.reload();">×</span>
                 <h2>دعوة الأصدقاء</h2>
-                <p style="color:#00ffcc; font-size:14px; margin-bottom:15px;">الغرفة جاهزة. أرسل دعوة لصديقك وانتظر قبوله...</p>
+                <p style="color:#00ffcc; font-size:14px; margin-bottom:15px;">الغرفة جاهزة. أرسل دعوة...</p>
                 <div id="invite-friends-list">جاري التحميل...</div>
             `;
-            
             get(ref(db, `users/${myNumId}/friends`)).then(snap => {
                 const rfBox = document.getElementById('invite-friends-list');
                 rfBox.innerHTML = '';
-                if(snap.exists()) {
+                if (snap.exists()) {
                     snap.forEach(child => {
                         const fId = child.key; const fName = child.val();
                         rfBox.innerHTML += `
@@ -503,12 +630,9 @@
         window.acceptRoomInvite = async function(hostId, roomId) {
             await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
             currentRoom = roomId;
-            update(ref(db, `rooms/${roomId}`), { 
-                p2: myNumId, 
-                p2Name: myName,
-                status: 'ready', 
-                p2State: { alive: true, x: 0, y: 0, z: 0, coins: 0 },
-                gameEnded: false
+            update(ref(db, `rooms/${roomId}`), {
+                p2: myNumId, p2Name: myName, status: 'ready', gameEnded: false,
+                p2State: { alive: true, x: 0, y: 0, z: 0, coins: 0 }
             });
             onDisconnect(ref(db, `rooms/${roomId}/p2State/alive`)).set(false);
             listenToRoom();
@@ -522,19 +646,15 @@
             document.getElementById('side-buttons').classList.add('hidden');
             document.getElementById('bottom-ui').classList.add('hidden');
             document.getElementById('start-prompt').classList.add('hidden');
-            
             const overlay = document.getElementById('countdown-overlay');
             overlay.classList.remove('hidden');
             let count = 3;
             overlay.innerText = count;
-
             let interval = setInterval(() => {
                 count--;
-                if(count > 0) {
-                    overlay.innerText = count;
-                } else if(count === 0) {
-                    overlay.innerText = "انطلق!";
-                } else {
+                if (count > 0) overlay.innerText = count;
+                else if (count === 0) overlay.innerText = "انطلق!";
+                else {
                     clearInterval(interval);
                     overlay.classList.add('hidden');
                     window.isCountingDown = false;
@@ -547,35 +667,28 @@
             isMultiplayer = true;
             onValue(ref(db, `rooms/${currentRoom}`), (snapshot) => {
                 const data = snapshot.val();
-                if(!data) return;
-                
-                if(data.status === 'ready' && !window.isCountingDown && !isGameRunning) { 
-                    startCountdown(); 
-                }
+                if (!data) return;
+                if (data.status === 'ready' && !window.isCountingDown && !isGameRunning) startCountdown();
                 
                 const isP1 = data.p1 === myNumId;
                 const oppState = isP1 ? data.p2State : data.p1State;
-                const myState = isP1 ? data.p1State : data.p2State;
-                const oppName = isP1 ? (data.p2Name || "الخصم") : (data.p1Name || "الخصم");
+                const oppName = isP1 ? (data.p2Name || "لاعب") : (data.p1Name || "لاعب");
                 const oppId = isP1 ? data.p2 : data.p1;
-                const myDataInRoom = isP1 ? data.p1 : data.p2;
 
                 if (oppState) {
                     opponentData = { ...oppState, name: oppName, id: oppId, victoryMsg: '' };
                     opponentGroup.position.x = oppState.x || 0;
                     opponentGroup.position.y = oppState.y || 0;
-                    opponentGroup.position.z = playerGroup.position.z; 
+                    opponentGroup.position.z = playerGroup.position.z;
                     opponentGroup.visible = true;
-
-                    // الحصول على رسالة الفوز للخصم
+                    
                     get(ref(db, `users/${oppId}`)).then(userSnap => {
-                        if(userSnap.exists() && opponentData) {
+                        if (userSnap.exists() && opponentData) {
                             opponentData.victoryMsg = userSnap.val().victoryMsg || "لقد فزت! 👑";
                         }
                     });
-
-                    // إذا الخصم مات وأنا حي واللعبة ما انتهت -> أنا الفائز
-                    if(!oppState.alive && myAlive && isGameRunning && !gameEnded) {
+                    
+                    if (!oppState.alive && myAlive && isGameRunning && !gameEnded) {
                         gameEnded = true;
                         winGame(oppState.coins || 0, oppName, opponentData.victoryMsg || "لقد فزت! 👑");
                     }
@@ -583,19 +696,15 @@
             });
         }
 
-        // ================== دالة إظهار نتيجة المباراة ==================
         function showResultOverlay(rankings, victoryMsgForLoser, isLoser) {
             const overlay = document.getElementById('result-overlay');
             const rankingsDiv = document.getElementById('result-rankings');
             const victoryMsgDiv = document.getElementById('result-victory-msg');
-            
             rankingsDiv.innerHTML = '';
-            
             rankings.forEach((player, index) => {
                 const rankClass = index === 0 ? 'first' : 'second';
                 const badgeClass = index === 0 ? 'gold' : 'silver';
                 const badgeText = index === 0 ? '🥇' : '🥈';
-                
                 rankingsDiv.innerHTML += `
                     <div class="rank-item ${rankClass}">
                         <div class="rank-badge ${badgeClass}">${badgeText}</div>
@@ -603,454 +712,448 @@
                             <div class="rank-name">${player.name}</div>
                             <div class="rank-points">💰 ${player.coins} نقطة</div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-            
-            // رسالة الفوز تظهر فقط للخاسر
-            if(isLoser && victoryMsgForLoser) {
+            if (isLoser && victoryMsgForLoser) {
                 victoryMsgDiv.style.display = 'block';
                 victoryMsgDiv.innerText = '💬 ' + victoryMsgForLoser;
             } else {
                 victoryMsgDiv.style.display = 'none';
             }
-            
             overlay.classList.add('active');
         }
 
-        // ================== محرك 3D والرسوميات ==================
+        // ================== محرك 3D والرسوميات الواقعية ==================
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x55CCFF); 
-        scene.fog = new THREE.Fog(0x55CCFF, 40, 180);
+        scene.background = new THREE.Color(0x5ca2e8); // سماء واقعية زرقاء فاتحة
+        scene.fog = new THREE.Fog(0x5ca2e8, 50, 220); // ضباب مطابق للون السماء
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
         camera.position.set(0, 7, 12);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(window.devicePixelRatio); // لتفعيل الـ 120 فريم بحسب الشاشة
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // ظلال عالية الدقة
         document.getElementById('game-container').appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        dirLight.position.set(-15, 25, 10); dirLight.castShadow = true; scene.add(dirLight);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // إضاءة محيطية
+        scene.add(ambientLight);
+        const sunLight = new THREE.DirectionalLight(0xffeedd, 1.2); // لون الشمس الواقعي
+        sunLight.position.set(-20, 40, 15);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 1024;
+        sunLight.shadow.mapSize.height = 1024;
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 200;
+        sunLight.shadow.camera.left = -40;
+        sunLight.shadow.camera.right = 40;
+        sunLight.shadow.camera.top = 40;
+        sunLight.shadow.camera.bottom = -40;
+        scene.add(sunLight);
 
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x4aa02c });
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 600), groundMat);
-        ground.rotation.x = -Math.PI / 2; ground.position.z = -200; ground.receiveShadow = true; scene.add(ground);
+        // أرضية عشبية (لون طبيعي)
+        const groundGeo = new THREE.PlaneGeometry(150, 800);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d4c1e, roughness: 1.0, metalness: 0.0 });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.z = -250;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
-        const laneWidth = 3.5;
-        const trackGeo = new THREE.PlaneGeometry(2.5, 600);
-        const trackMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+        // سكة القطار مع حصى
+        const laneWidth = 3.6;
         const lanesX = [-laneWidth, 0, laneWidth];
+        const gravelGeo = new THREE.PlaneGeometry(3.8, 800);
+        const gravelMat = new THREE.MeshStandardMaterial({ color: 0x5a5a5a, roughness: 1.0, metalness: 0.1 });
         lanesX.forEach(x => {
-            const track = new THREE.Mesh(trackGeo, trackMat);
-            track.rotation.x = -Math.PI / 2; track.position.set(x, 0.05, -200); track.receiveShadow = true;
-            scene.add(track);
+            const g = new THREE.Mesh(gravelGeo, gravelMat);
+            g.rotation.x = -Math.PI / 2;
+            g.position.set(x, 0.02, -250);
+            g.receiveShadow = true;
+            scene.add(g);
         });
 
-        const sleepers = new THREE.Group();
-        const sleepGeo = new THREE.BoxGeometry(3, 0.1, 0.4);
-        const sleepMat = new THREE.MeshStandardMaterial({ color: 0x5c4033 });
-        for(let i=0; i<40; i++) {
+        // قضبان السكة
+        const railGeo = new THREE.BoxGeometry(0.15, 0.2, 800);
+        const railMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
+        lanesX.forEach(x => {
+            [-0.9, 0.9].forEach(offset => {
+                const rail = new THREE.Mesh(railGeo, railMat);
+                rail.position.set(x + offset, 0.15, -250);
+                rail.castShadow = true;
+                rail.receiveShadow = true;
+                scene.add(rail);
+            });
+        });
+
+        const sleepersGroup = new THREE.Group();
+        const sleeperGeo = new THREE.BoxGeometry(3.2, 0.12, 0.5);
+        const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x4a2e15, roughness: 0.9, metalness: 0.0 });
+        for (let i = 0; i < 60; i++) {
             lanesX.forEach(x => {
-                const s = new THREE.Mesh(sleepGeo, sleepMat); s.position.set(x, 0.08, -i*5); sleepers.add(s);
+                const s = new THREE.Mesh(sleeperGeo, sleeperMat);
+                s.position.set(x, 0.08, -i * 4);
+                s.castShadow = true;
+                s.receiveShadow = true;
+                sleepersGroup.add(s);
             });
         }
-        scene.add(sleepers);
+        scene.add(sleepersGroup);
 
-        const buildings = [];
-        const bGeo = new THREE.BoxGeometry(4, 15, 6);
-        const bColors = [0xdddddd, 0xaabbcc, 0xffcccc, 0xccffcc];
-        for(let i=0; i<20; i++) {
-            const mat = new THREE.MeshStandardMaterial({ color: bColors[Math.floor(Math.random()*bColors.length)] });
-            const b = new THREE.Mesh(bGeo, mat); b.castShadow = true; b.receiveShadow = true;
-            b.position.z = 100; b.userData = { active: false }; b.visible = false; scene.add(b); buildings.push(b);
+        // ================== قطارات، حواجز ومنازل ==================
+        function createRealisticTrain(colorHex = 0xff3300) {
+            const group = new THREE.Group();
+            const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.4, roughness: 0.3 });
+            const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.6, roughness: 0.2 });
+            const windowMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, emissive: 0x334455, emissiveIntensity: 0.6, metalness: 0.1, roughness: 0.1 });
+            const lightMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 1.2 });
+            
+            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.2, 28), bodyMat);
+            mainBody.position.y = 1.6; mainBody.castShadow = true; mainBody.receiveShadow = true;
+            group.add(mainBody);
+            
+            const noseGeo = new THREE.CylinderGeometry(0.8, 1.4, 3, 8);
+            const nose = new THREE.Mesh(noseGeo, bodyMat);
+            nose.rotation.x = Math.PI / 2; nose.position.set(0, 2.0, -15.5); nose.castShadow = true;
+            group.add(nose);
+            
+            for (let i = 0; i < 4; i++) {
+                const winGeo = new THREE.BoxGeometry(0.7, 0.8, 0.1);
+                const win = new THREE.Mesh(winGeo, windowMat); win.position.set(0.8, 2.8, -8 + i * 5); group.add(win);
+                const win2 = new THREE.Mesh(winGeo, windowMat); win2.position.set(-0.8, 2.8, -8 + i * 5); group.add(win2);
+            }
+            
+            const headlight1 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16), lightMat);
+            headlight1.rotation.x = Math.PI / 2; headlight1.position.set(0.6, 1.2, -15.8); group.add(headlight1);
+            const headlight2 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16), lightMat);
+            headlight2.rotation.x = Math.PI / 2; headlight2.position.set(-0.6, 1.2, -15.8); group.add(headlight2);
+
+            return group;
         }
 
+        function createBarrier() {
+            const group = new THREE.Group();
+            const poleMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.3, roughness: 0.5 });
+            const signMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0x330000, roughness: 0.2 });
+
+            const poleL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat); poleL.position.set(-1.3, 1.25, 0); poleL.castShadow = true; group.add(poleL);
+            const poleR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat); poleR.position.set(1.3, 1.25, 0); poleR.castShadow = true; group.add(poleR);
+            const topBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.4, 0.4), poleMat); topBar.position.y = 2.6; topBar.castShadow = true; group.add(topBar);
+            const sign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.15), signMat); sign.position.set(0, 3.1, 0); sign.castShadow = true; group.add(sign);
+            return group;
+        }
+
+        function createHouse(colorHex) {
+            const group = new THREE.Group();
+            const wallMat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.9 });
+            const roofMat = new THREE.MeshStandardMaterial({ color: 0x6b3611, roughness: 0.8 });
+            
+            const body = new THREE.Mesh(new THREE.BoxGeometry(4, 10, 5), wallMat); body.position.y = 5; body.castShadow = true; body.receiveShadow = true; group.add(body);
+            const roofGeo = new THREE.ConeGeometry(4, 4, 4);
+            const roof = new THREE.Mesh(roofGeo, roofMat); roof.position.y = 12; roof.rotation.y = Math.PI / 4; roof.castShadow = true; roof.receiveShadow = true; group.add(roof);
+            return group;
+        }
+
+        // ================== الشخصية وملابسها الواقعية ==================
         function createCharacter(isGhost = false) {
             const group = new THREE.Group();
-            
-            const skinMat = new THREE.MeshStandardMaterial({ color: customizations.skin });
-            const clothesMat = new THREE.MeshStandardMaterial({ color: customizations.clothes });
-            const hairMat = new THREE.MeshStandardMaterial({ color: customizations.hair });
-            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
 
-            const headGroup = new THREE.Group(); headGroup.name = "headGroup"; headGroup.position.y = 2.6;
-            
-            const skull = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), skinMat);
-            skull.name = "skull"; skull.castShadow = !isGhost; headGroup.add(skull);
+            const skinMat = new THREE.MeshStandardMaterial({ color: customizations.skin, roughness: 0.6 });
+            const clothesMat = new THREE.MeshStandardMaterial({ color: customizations.clothes, roughness: 0.8 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: customizations.hair, roughness: 0.9 });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.8 });
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 });
 
+            // الرأس
+            const headGroup = new THREE.Group(); headGroup.name = "headGroup"; headGroup.position.y = 2.7;
+            const skullGeo = new THREE.SphereGeometry(0.48, 16, 16); skullGeo.scale(1, 1.05, 0.95);
+            const skull = new THREE.Mesh(skullGeo, skinMat); skull.name = "skull"; skull.castShadow = !isGhost; headGroup.add(skull);
+
+            // الشعر بستايلات مختلفة
             const hairGroup = new THREE.Group(); hairGroup.name = "hairGroup";
             
-            const hairBase = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.3, 1.05), hairMat);
-            hairBase.position.y = 0.55; 
-            hairBase.name = "hairBase"; hairBase.castShadow = !isGhost; hairGroup.add(hairBase);
-
-            const hairPony = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.3, 0.4), hairMat);
-            hairPony.position.set(0, -0.1, -0.45); 
-            hairPony.name = "hairPony"; hairPony.castShadow = !isGhost; hairGroup.add(hairPony);
+            // 1. شعر القاعدة (أساس)
+            const hairBaseGeo = new THREE.SphereGeometry(0.5, 16, 16); hairBaseGeo.scale(1, 0.4, 1.05);
+            const hairBase = new THREE.Mesh(hairBaseGeo, hairMat); hairBase.position.y = 0.35; hairBase.name = "hairBase"; hairBase.castShadow = !isGhost; hairGroup.add(hairBase);
+            
+            // 2. شعر طويل بنات (Pony)
+            const hairPonyGeo = new THREE.BoxGeometry(0.75, 1.4, 0.5);
+            const hairPony = new THREE.Mesh(hairPonyGeo, hairMat); hairPony.position.set(0, -0.35, -0.35); hairPony.name = "hairPony"; hairPony.castShadow = !isGhost; hairGroup.add(hairPony);
+            
+            // 3. شعر سبايكي ولادي
+            const hairSpikyGeo = new THREE.ConeGeometry(0.45, 0.5, 8);
+            const hairSpiky = new THREE.Mesh(hairSpikyGeo, hairMat); hairSpiky.position.set(0, 0.5, 0); hairSpiky.name = "hairSpiky"; hairSpiky.castShadow = !isGhost; hairGroup.add(hairSpiky);
             
             headGroup.add(hairGroup);
 
-            const eyeGeo = new THREE.BoxGeometry(0.2, 0.15, 0.05);
-            const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const pupilGeo = new THREE.BoxGeometry(0.08, 0.08, 0.06);
-            
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat); leftEye.position.set(-0.2, 0.1, 0.46); leftEye.name = "lEye"; headGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat); rightEye.position.set(0.2, 0.1, 0.46); rightEye.name = "rEye"; headGroup.add(rightEye);
-            
-            const lPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({color:0x000000})); lPupil.position.set(-0.2, 0.1, 0.47); lPupil.name="lPupil"; headGroup.add(lPupil);
-            const rPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({color:0x000000})); rPupil.position.set(0.2, 0.1, 0.47); rPupil.name="rPupil"; headGroup.add(rPupil);
+            // العيون
+            const eyeWhiteGeo = new THREE.SphereGeometry(0.1, 8, 8); const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const lEye = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat); lEye.position.set(-0.17, 0.1, 0.42); lEye.name = "lEye"; headGroup.add(lEye);
+            const rEye = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat); rEye.position.set(0.17, 0.1, 0.42); rEye.name = "rEye"; headGroup.add(rEye);
 
-            const nose = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.15), skinMat);
-            nose.position.set(0, -0.05, 0.48); nose.name = "nose"; headGroup.add(nose);
+            const pupilGeo = new THREE.SphereGeometry(0.05, 8, 8);
+            const lPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({ color: 0x000000 })); lPupil.position.set(-0.17, 0.1, 0.48); lPupil.name = "lPupil"; headGroup.add(lPupil);
+            const rPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({ color: 0x000000 })); rPupil.position.set(0.17, 0.1, 0.48); rPupil.name = "rPupil"; headGroup.add(rPupil);
+
+            // الأنف والفم
+            const nose = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 8), skinMat); nose.position.set(0, -0.02, 0.48); nose.rotation.x = Math.PI / 2; nose.name = "nose"; headGroup.add(nose);
+            const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.02), new THREE.MeshBasicMaterial({ color: 0xcc4444 })); mouth.position.set(0, -0.2, 0.47); mouth.name = "mouth"; headGroup.add(mouth);
+
             group.add(headGroup);
 
-            const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 0.6), clothesMat);
-            body.position.y = 1.4; body.name = "body"; body.castShadow = !isGhost; group.add(body);
+            // الجسم
+            const bodyGeo = new THREE.CylinderGeometry(0.45, 0.5, 1.5, 12);
+            const body = new THREE.Mesh(bodyGeo, clothesMat); body.position.y = 1.35; body.name = "body"; body.castShadow = !isGhost; group.add(body);
 
-            const leftArmGroup = new THREE.Group();
-            leftArmGroup.name = "lArmGroup"; leftArmGroup.position.set(-0.75, 2.0, 0);
+            // الأذرع
+            const createArm = (namePrefix, posX) => {
+                const armGroup = new THREE.Group(); armGroup.name = namePrefix + "ArmGroup"; armGroup.position.set(posX, 2.1, 0);
+                const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.8, 8), clothesMat); upper.position.y = -0.4; upper.name = namePrefix + "Sleeve"; upper.castShadow = !isGhost; armGroup.add(upper);
+                const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.7, 8), skinMat); lower.position.y = -1.15; lower.name = namePrefix + "Skin"; lower.castShadow = !isGhost; armGroup.add(lower);
+                return armGroup;
+            }
+            group.add(createArm("l", -0.55));
+            group.add(createArm("r", 0.55));
 
-            const lSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.7, 0.35), clothesMat);
-            lSleeve.position.set(0, -0.35, 0); lSleeve.name = "lSleeve"; lSleeve.castShadow = !isGhost; leftArmGroup.add(lSleeve);
-            
-            const lSkin = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.7, 0.33), skinMat);
-            lSkin.position.set(0, -1.05, 0); lSkin.name = "lSkin"; lSkin.castShadow = !isGhost; leftArmGroup.add(lSkin);
-            
-            group.add(leftArmGroup);
+            // الأقدام
+            const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 1.0, 8), pantsMat); leftLeg.position.set(-0.22, 0.5, 0); leftLeg.name = "lLeg"; leftLeg.castShadow = !isGhost; group.add(leftLeg);
+            const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 1.0, 8), pantsMat); rightLeg.position.set(0.22, 0.5, 0); rightLeg.name = "rLeg"; rightLeg.castShadow = !isGhost; group.add(rightLeg);
 
-            const rightArmGroup = new THREE.Group();
-            rightArmGroup.name = "rArmGroup"; rightArmGroup.position.set(0.75, 2.0, 0);
+            // أحذية
+            const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.45), shoeMat); lShoe.position.set(-0.22, 0.05, 0.08); lShoe.castShadow = !isGhost; group.add(lShoe);
+            const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.45), shoeMat); rShoe.position.set(0.22, 0.05, 0.08); rShoe.castShadow = !isGhost; group.add(rShoe);
 
-            const rSleeve = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.7, 0.35), clothesMat);
-            rSleeve.position.set(0, -0.35, 0); rSleeve.name = "rSleeve"; rSleeve.castShadow = !isGhost; rightArmGroup.add(rSleeve);
-            
-            const rSkin = new THREE.Mesh(new THREE.BoxGeometry(0.33, 0.7, 0.33), skinMat);
-            rSkin.position.set(0, -1.05, 0); rSkin.name = "rSkin"; rSkin.castShadow = !isGhost; rightArmGroup.add(rSkin);
-            
-            group.add(rightArmGroup);
-
-            const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1, 0.45), pantsMat);
-            leftLeg.position.set(-0.35, 0.5, 0); leftLeg.name = "lLeg"; leftLeg.castShadow = !isGhost; group.add(leftLeg);
-            const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1, 0.45), pantsMat);
-            rightLeg.position.set(0.35, 0.5, 0); rightLeg.name = "rLeg"; rightLeg.castShadow = !isGhost; group.add(rightLeg);
-
-            if(isGhost) {
+            if (isGhost) {
                 group.traverse(c => {
-                    if(c.isMesh && c.material) {
-                        c.material = c.material.clone();
-                        c.material.transparent = true;
-                        c.material.opacity = 0.5;
-                        c.castShadow = false;
+                    if (c.isMesh && c.material) {
+                        c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.5; c.castShadow = false;
                     }
                 });
             }
             return group;
         }
 
-        const playerGroup = createCharacter(); scene.add(playerGroup);
+        const playerGroup = createCharacter();
+        scene.add(playerGroup);
         const opponentGroup = createCharacter(true); opponentGroup.visible = false; scene.add(opponentGroup);
-        
-        playerGroup.rotation.y = 0; 
-        let targetRotationY = 0;
+        playerGroup.rotation.y = 0; let targetRotationY = 0;
 
         function updateCharacterVisuals() {
             const p = playerGroup;
             const isGirl = customizations.gender === 'girl';
+            const skinColor = new THREE.Color(customizations.skin);
 
             p.getObjectByName("body").material.color.set(customizations.clothes);
             p.getObjectByName("lSleeve").material.color.set(customizations.clothes);
             p.getObjectByName("rSleeve").material.color.set(customizations.clothes);
             
+            // ستايل الملابس (كم طويل أو تيشرت)
+            if(customizations.clothesStyle === 'longsleeve') {
+                p.getObjectByName("lSleeve").scale.y = 1.8; p.getObjectByName("lSleeve").position.y = -0.8;
+                p.getObjectByName("rSleeve").scale.y = 1.8; p.getObjectByName("rSleeve").position.y = -0.8;
+            } else {
+                p.getObjectByName("lSleeve").scale.y = 1.0; p.getObjectByName("lSleeve").position.y = -0.4;
+                p.getObjectByName("rSleeve").scale.y = 1.0; p.getObjectByName("rSleeve").position.y = -0.4;
+            }
+
             p.getObjectByName("hairBase").material.color.set(customizations.hair);
             p.getObjectByName("hairPony").material.color.set(customizations.hair);
-            
-            const skinColor = new THREE.Color(customizations.skin);
+            p.getObjectByName("hairSpiky").material.color.set(customizations.hair);
+
+            // ستايل الشعر
+            p.getObjectByName("hairPony").visible = false;
+            p.getObjectByName("hairSpiky").visible = false;
+            if(customizations.hairStyle === 'pony') p.getObjectByName("hairPony").visible = true;
+            if(customizations.hairStyle === 'spiky') p.getObjectByName("hairSpiky").visible = true;
+
             p.getObjectByName("headGroup").getObjectByName("skull").material.color.set(skinColor);
             p.getObjectByName("headGroup").getObjectByName("nose").material.color.set(skinColor);
             p.getObjectByName("lSkin").material.color.set(skinColor);
             p.getObjectByName("rSkin").material.color.set(skinColor);
 
-            const lEye = p.getObjectByName("headGroup").getObjectByName("lEye");
-            const rEye = p.getObjectByName("headGroup").getObjectByName("rEye");
             const lPupil = p.getObjectByName("headGroup").getObjectByName("lPupil");
             const rPupil = p.getObjectByName("headGroup").getObjectByName("rPupil");
+            const lEye = p.getObjectByName("headGroup").getObjectByName("lEye");
+            const rEye = p.getObjectByName("headGroup").getObjectByName("rEye");
 
-            if(customizations.face === 'arab') {
+            if (customizations.face === 'arab') {
                 lEye.scale.set(1.2, 1.3, 1); rEye.scale.set(1.2, 1.3, 1);
-                lPupil.material.color.setHex(0x2b1b00);
+                lPupil.material.color.setHex(0x2b1b00); rPupil.material.color.setHex(0x2b1b00);
             } else if (customizations.face === 'asian') {
-                lEye.scale.set(1.1, 0.5, 1); rEye.scale.set(1.1, 0.5, 1); 
-                lPupil.material.color.setHex(0x111111);
+                lEye.scale.set(1.1, 0.5, 1); rEye.scale.set(1.1, 0.5, 1);
+                lPupil.material.color.setHex(0x111111); rPupil.material.color.setHex(0x111111);
             } else if (customizations.face === 'euro') {
                 lEye.scale.set(1, 1, 1); rEye.scale.set(1, 1, 1);
-                lPupil.material.color.setHex(0x0055ff);
+                lPupil.material.color.setHex(0x0055ff); rPupil.material.color.setHex(0x0055ff);
             }
 
-            let hBase = p.getObjectByName("hairBase");
-            let hPony = p.getObjectByName("hairPony");
-            let body = p.getObjectByName("body");
-            let lArm = p.getObjectByName("lArmGroup");
-            let rArm = p.getObjectByName("rArmGroup");
+            const body = p.getObjectByName("body");
+            const lArm = p.getObjectByName("lArmGroup");
+            const rArm = p.getObjectByName("rArmGroup");
 
-            if(isGirl) {
-                hBase.scale.set(1.05, 1.2, 1.05);
-                hBase.position.set(0, 0.45, 0); 
-                hPony.visible = true;
+            // تعديل أحجام الجسم لتبين حقيقية حسب الجنس
+            if (isGirl) {
                 body.scale.set(0.85, 0.95, 0.8);
-                lArm.position.set(-0.65, 1.9, 0);
-                rArm.position.set(0.65, 1.9, 0);
+                lArm.position.set(-0.5, 2.0, 0);
+                rArm.position.set(0.5, 2.0, 0);
             } else {
-                hBase.scale.set(1.0, 1.0, 1.0); 
-                hBase.position.set(0, 0.55, 0);
-                hPony.visible = false;
-                body.scale.set(1.0, 1.0, 1.0);
-                lArm.position.set(-0.75, 2.0, 0);
-                rArm.position.set(0.75, 2.0, 0);
+                body.scale.set(1.05, 1.05, 1.0); // جسم أعرض للولد
+                lArm.position.set(-0.6, 2.1, 0);
+                rArm.position.set(0.6, 2.1, 0);
             }
         }
+        updateCharacterVisuals(); // تطبيق أولي
 
-        const CONSTANT_SPEED = 0.8;
-        let gameSpeed = 0; let isGameRunning = false;
-        let currentLane = 0; let targetX = 0;
-        let velocityY = 0; let isJumping = false; let isSliding = false;
-        const gravity = -0.025; const jumpStrength = 0.45;
-        let currentGroundY = 0; let runAnimTime = 0;
+        // ================== إعدادات وتوليد اللعب ==================
+        const CONSTANT_SPEED = 0.85; let gameSpeed = 0; let isGameRunning = false;
+        let currentLane = 0; let targetX = 0; let velocityY = 0; let isJumping = false; let isSliding = false;
+        const gravity = -0.028; const jumpStrength = 0.48; let currentGroundY = 0; let runAnimTime = 0;
 
-        const obstacles = []; const coins = [];
-        
-        const trainGeo = new THREE.BoxGeometry(2.8, 3.5, 30);
-        const trainMat = new THREE.MeshStandardMaterial({ color: 0xff3300, roughness: 0.3 });
-        
-        function createAwesomeBarrier() {
-            const group = new THREE.Group();
-            const pillarMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
-            const topMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            
-            const pL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat);
-            pL.position.set(-1.25, 1, 0); pL.castShadow = true; group.add(pL);
-            
-            const pR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), pillarMat);
-            pR.position.set(1.25, 1, 0); pR.castShadow = true; group.add(pR);
-            
-            const top = new THREE.Mesh(new THREE.BoxGeometry(3, 10, 0.5), topMat);
-            top.position.set(0, 7.3, 0); top.name = "hitbox"; top.castShadow = true; group.add(top);
-            
-            return group;
+        const obstacles = []; const coins = []; const houses = [];
+        const trainColors = [0xff3300, 0x0055cc, 0x00aa44, 0xff8800];
+        for (let i = 0; i < 12; i++) {
+            const train = createRealisticTrain(trainColors[i % trainColors.length]);
+            train.position.z = 100; train.userData = { active: false, type: 'train' }; train.visible = false;
+            scene.add(train); obstacles.push(train);
+        }
+        for (let i = 0; i < 8; i++) {
+            const barrier = createBarrier(); barrier.position.z = 100; barrier.userData = { active: false, type: 'barrier' }; barrier.visible = false;
+            scene.add(barrier); obstacles.push(barrier);
+        }
+        const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.12, 20);
+        const coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1, emissive: 0x553300, emissiveIntensity: 0.3 });
+        for (let i = 0; i < 50; i++) {
+            const coin = new THREE.Mesh(coinGeo, coinMat); coin.rotation.x = Math.PI / 2; coin.castShadow = true;
+            coin.position.z = 100; coin.userData = { active: false }; coin.visible = false; scene.add(coin); coins.push(coin);
+        }
+        const houseColors = [0xdddddd, 0xffccbb, 0xccddff, 0xfff5cc, 0xe8d5c4, 0xd4e8c4];
+        for (let i = 0; i < 15; i++) {
+            const house = createHouse(houseColors[i % houseColors.length]); house.position.z = 100;
+            house.userData = { active: false }; house.visible = false; scene.add(house); houses.push(house);
         }
 
-        const coinGeo = new THREE.CylinderGeometry(0.6, 0.6, 0.15, 16);
-        const coinMat = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0x664400, shininess: 100 });
-
-        for(let i=0; i<20; i++) {
-            const isBarrier = Math.random() > 0.6;
-            const mesh = isBarrier ? createAwesomeBarrier() : new THREE.Mesh(trainGeo, trainMat);
-            if(!isBarrier) mesh.castShadow = true; mesh.receiveShadow = true;
-            mesh.position.z = 100;
-            mesh.userData = { active: false, type: isBarrier ? 'barrier' : 'train' };
-            mesh.visible = false;
-            scene.add(mesh); obstacles.push(mesh);
-        }
-
-        for(let i=0; i<40; i++) {
-            const mesh = new THREE.Mesh(coinGeo, coinMat);
-            mesh.rotation.x = Math.PI / 2; mesh.castShadow = true; mesh.position.z = 100;
-            mesh.userData = { active: false }; mesh.visible = false; scene.add(mesh); coins.push(mesh);
-        }
-
-        let obstacleTimer = 0;
-        let coinTimer = 0;
-        
+        let obstacleTimer = 0; let coinTimer = 0;
         function spawnObjects() {
-            if(!isGameRunning) return;
-            obstacleTimer++;
-            coinTimer++;
-
-            if(obstacleTimer > 110 && Math.random() < 0.3) {
-                let isHardMode = matchCoins > 10 && Math.random() > 0.4;
-                
+            if (!isGameRunning) return;
+            obstacleTimer++; coinTimer++;
+            if (obstacleTimer > 100 && Math.random() < 0.35) {
+                const isHardMode = matchCoins > 10 && Math.random() > 0.4;
                 if (isHardMode) {
-                    let lanes = [0, 1, 2].sort(() => 0.5 - Math.random());
-                    for(let k=0; k<2; k++) {
+                    const lanes = [0, 1, 2].sort(() => 0.5 - Math.random());
+                    for (let k = 0; k < 2; k++) {
                         const obs = obstacles.find(o => !o.userData.active && o.userData.type === 'train');
-                        if (obs) {
-                            obs.position.set(lanesX[lanes[k]], 1.75, -350);
-                            obs.userData.active = true;
-                            obs.visible = true;
-                        }
+                        if (obs) { obs.position.set(lanesX[lanes[k]], 0, -380); obs.userData.active = true; obs.visible = true; }
                     }
                 } else {
                     const obs = obstacles.find(o => !o.userData.active);
-                    if(obs) {
+                    if (obs) {
                         const lane = lanesX[Math.floor(Math.random() * 3)];
-                        obs.position.set(lane, obs.userData.type === 'barrier' ? 0 : 1.75, -350);
-                        obs.userData.active = true;
-                        obs.visible = true;
+                        obs.position.set(lane, 0, -380); obs.userData.active = true; obs.visible = true;
                     }
                 }
                 obstacleTimer = 0;
             }
-
-            if(Math.random() < 0.05) {
-                const b = buildings.find(x => !x.userData.active);
-                if(b) {
-                    const side = Math.random() > 0.5 ? 12 : -12; 
-                    b.position.set(side, 7.5, -300);
-                    b.userData.active = true;
-                    b.visible = true;
+            if (Math.random() < 0.04) {
+                const h = houses.find(x => !x.userData.active);
+                if (h) {
+                    const side = Math.random() > 0.5 ? 14 : -14;
+                    h.position.set(side, 0, -350); h.userData.active = true; h.visible = true;
                 }
             }
-
-            if(coinTimer > 60 && obstacleTimer > 40 && obstacleTimer < 80 && Math.random() < 0.3) {
+            if (coinTimer > 50 && obstacleTimer > 30 && obstacleTimer < 70 && Math.random() < 0.4) {
                 const lane = lanesX[Math.floor(Math.random() * 3)];
-                for(let j=0; j<5; j++) {
+                for (let j = 0; j < 6; j++) {
                     const coin = coins.find(c => !c.userData.active);
-                    if(coin) {
-                        coin.position.set(lane, 0.6, -300 - (j * 4.5)); 
-                        coin.userData.active = true;
-                        coin.visible = true;
-                    }
+                    if (coin) { coin.position.set(lane, 0.7, -320 - (j * 4)); coin.userData.active = true; coin.visible = true; }
                 }
                 coinTimer = 0;
             }
         }
-        
-        let rightHitCount = 0;
-        let lastRightHitTime = 0;
-        let isInvincible = false;
-        let hackInterval;
 
+        let rightHitCount = 0; let lastRightHitTime = 0; let isInvincible = false; let hackInterval;
         function activateHack() {
-            isInvincible = true;
-            rightHitCount = 0;
-            let timeLeft = 60;
-            let hackUi = document.getElementById('hack-timer');
-            hackUi.classList.remove('hidden');
-            hackUi.innerText = timeLeft;
-            
+            isInvincible = true; rightHitCount = 0; let timeLeft = 60;
+            const hackUi = document.getElementById('hack-timer');
+            hackUi.classList.remove('hidden'); hackUi.innerText = timeLeft;
             clearInterval(hackInterval);
             hackInterval = setInterval(() => {
-                timeLeft--;
-                hackUi.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(hackInterval);
-                    isInvincible = false;
-                    hackUi.classList.add('hidden');
-                }
+                timeLeft--; hackUi.innerText = timeLeft;
+                if (timeLeft <= 0) { clearInterval(hackInterval); isInvincible = false; hackUi.classList.add('hidden'); }
             }, 1000);
         }
 
-        function actionLeft() { if(currentLane > -1) { currentLane--; targetX = currentLane * laneWidth; } }
-        function actionRight() { 
-            if(currentLane < 1) { 
-                currentLane++; 
-                targetX = currentLane * laneWidth; 
-            } else {
-                let now = Date.now();
-                if(now - lastRightHitTime < 500) {
-                    rightHitCount++;
-                    if(rightHitCount >= 3) activateHack();
-                } else {
-                    rightHitCount = 1;
-                }
+        function actionLeft() { if (currentLane > -1) { currentLane--; targetX = currentLane * laneWidth; } }
+        function actionRight() {
+            if (currentLane < 1) { currentLane++; targetX = currentLane * laneWidth; }
+            else {
+                const now = Date.now();
+                if (now - lastRightHitTime < 500) { rightHitCount++; if (rightHitCount >= 3) activateHack(); }
+                else { rightHitCount = 1; }
                 lastRightHitTime = now;
             }
         }
-        function actionJump() { if(!isJumping) { isJumping = true; velocityY = jumpStrength; if(isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; } } }
-        function actionSlide() { if(!isJumping && !isSliding) { isSliding = true; playerGroup.scale.y = 0.5; playerGroup.position.y -= 0.7; setTimeout(() => { if(isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; } }, 800); } else if (isJumping) velocityY = -jumpStrength; }
+        function actionJump() {
+            if (!isJumping) {
+                isJumping = true; velocityY = jumpStrength;
+                if (isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; }
+            }
+        }
+        function actionSlide() {
+            if (!isJumping && !isSliding) {
+                isSliding = true; playerGroup.scale.y = 0.5; playerGroup.position.y -= 0.7;
+                setTimeout(() => { if (isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; } }, 800);
+            } else if (isJumping) velocityY = -jumpStrength;
+        }
 
         window.addEventListener('keydown', (e) => {
-            if(!isGameRunning) return;
-            if(e.key === 'ArrowLeft' || e.key === 'a') actionLeft();
-            if(e.key === 'ArrowRight' || e.key === 'd') actionRight();
-            if(e.key === 'ArrowUp' || e.key === 'w') actionJump();
-            if(e.key === 'ArrowDown' || e.key === 's') actionSlide();
+            if (!isGameRunning) return;
+            if (e.key === 'ArrowLeft' || e.key === 'a') actionLeft();
+            if (e.key === 'ArrowRight' || e.key === 'd') actionRight();
+            if (e.key === 'ArrowUp' || e.key === 'w') actionJump();
+            if (e.key === 'ArrowDown' || e.key === 's') actionSlide();
         });
-
         let tX = 0, tY = 0;
-        window.addEventListener('touchstart', (e) => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; }, {passive: false});
+        window.addEventListener('touchstart', (e) => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; }, { passive: false });
         window.addEventListener('touchend', (e) => {
-            if(!isGameRunning) return;
+            if (!isGameRunning) return;
             const dX = e.changedTouches[0].clientX - tX; const dY = e.changedTouches[0].clientY - tY;
-            if(Math.abs(dX) > Math.abs(dY)) { if(Math.abs(dX) > 30) dX > 0 ? actionRight() : actionLeft(); } 
-            else { if(Math.abs(dY) > 30) dY < 0 ? actionJump() : actionSlide(); }
-        }, {passive: false});
-        window.addEventListener('touchmove', e => { if(isGameRunning) e.preventDefault(); }, {passive: false});
+            if (Math.abs(dX) > Math.abs(dY)) { if (Math.abs(dX) > 30) dX > 0 ? actionRight() : actionLeft(); }
+            else { if (Math.abs(dY) > 30) dY < 0 ? actionJump() : actionSlide(); }
+        }, { passive: false });
+        window.addEventListener('touchmove', e => { if (isGameRunning) e.preventDefault(); }, { passive: false });
 
         window.addEventListener('pointerdown', (e) => {
-            if(isGameRunning || window.isCountingDown) return;
-            if(e.target.closest('.ui-btn') || e.target.closest('.cust-btn') || e.target.closest('.modal')) return;
+            if (isGameRunning || window.isCountingDown || isCameraFocused) return;
+            if (e.target.closest('.ui-btn') || e.target.closest('.cust-btn') || e.target.closest('.modal')) return;
             startGame();
         });
 
         function checkCollisions() {
             currentGroundY = 0;
-            const pX = playerGroup.position.x;
-            const pY = playerGroup.position.y;
-            const pZ = playerGroup.position.z;
-            
-            const pWidth = 0.8;
-            const pDepth = 0.8;
-            const pHeight = isSliding ? 1.4 : 3.0; 
+            const pX = playerGroup.position.x; const pY = playerGroup.position.y; const pZ = playerGroup.position.z;
+            const pWidth = 0.8; const pDepth = 0.8; const pHeight = isSliding ? 1.4 : 3.0;
 
-            for(let obs of obstacles) {
-                if(!obs.userData.active) continue;
-                
-                const oX = obs.position.x;
-                const oY = obs.position.y;
-                const oZ = obs.position.z;
-
-                if(obs.userData.type === 'train') {
-                    const tWidth = 2.4; 
-                    const tDepth = 29.5;
-                    
-                    const intersectX = Math.abs(pX - oX) < (pWidth + tWidth) / 2;
-                    const intersectZ = Math.abs(pZ - oZ) < (pDepth + tDepth) / 2;
-                    
-                    if (intersectX && intersectZ) {
-                        if (pY >= 3.4 && velocityY <= 0) {
-                            currentGroundY = 3.5;
-                        } else if (pY < 3.4) {
-                            if(!isInvincible) {
-                                loseGame();
-                                return;
-                            }
-                        }
+            for (const obs of obstacles) {
+                if (!obs.userData.active) continue;
+                const oX = obs.position.x; const oZ = obs.position.z;
+                if (obs.userData.type === 'train') {
+                    if (Math.abs(pX - oX) < (pWidth + 2.6)/2 && Math.abs(pZ - oZ) < (pDepth + 29)/2) {
+                        if (pY >= 3.4 && velocityY <= 0) currentGroundY = 3.4;
+                        else if (pY < 3.4) if (!isInvincible) return loseGame();
                     }
                 } else if (obs.userData.type === 'barrier') {
-                    const bWidth = 2.8;
-                    const bDepth = 0.5;
-                    const bMinY = 2.2; 
-
-                    const intersectX = Math.abs(pX - oX) < (pWidth + bWidth) / 2;
-                    const intersectZ = Math.abs(pZ - oZ) < (pDepth + bDepth) / 2;
-                    
-                    if (intersectX && intersectZ) {
-                        if (pY + pHeight > bMinY) {
-                            if(!isInvincible) {
-                                loseGame();
-                                return;
-                            }
-                        }
+                    if (Math.abs(pX - oX) < (pWidth + 3.0)/2 && Math.abs(pZ - oZ) < (pDepth + 0.5)/2) {
+                        if (pY + pHeight > 2.6) if (!isInvincible) return loseGame();
                     }
                 }
             }
-
-            for(let coin of coins) {
-                if(!coin.userData.active) continue;
-                const intersectX = Math.abs(pX - coin.position.x) < 1.0;
-                const intersectZ = Math.abs(pZ - coin.position.z) < 1.0;
-                const intersectY = pY < coin.position.y + 1.5;
-                
-                if(intersectX && intersectZ && intersectY) {
-                    coin.userData.active = false; 
-                    coin.visible = false;
-                    coin.position.z = 100; 
-                    matchCoins += 1; 
-                    document.getElementById('coins-val').innerText = matchCoins;
+            for (const coin of coins) {
+                if (!coin.userData.active) continue;
+                if (Math.abs(pX - coin.position.x) < 1.0 && Math.abs(pZ - coin.position.z) < 1.0 && pY < coin.position.y + 1.5) {
+                    coin.userData.active = false; coin.visible = false; coin.position.z = 100;
+                    matchCoins += 1; document.getElementById('coins-val').innerText = matchCoins;
                 }
             }
         }
@@ -1060,86 +1163,50 @@
             document.getElementById('side-buttons').classList.add('hidden');
             document.getElementById('bottom-ui').classList.add('hidden');
             document.getElementById('result-overlay').classList.remove('active');
-            
-            targetRotationY = Math.PI; 
-            matchCoins = 0; 
-            myAlive = true;
-            gameEnded = false;
-            document.getElementById('coins-val').innerText = '0'; 
-            
-            playerGroup.position.set(0, 0, 0); 
-            playerGroup.scale.y = 1;
-            camera.position.set(0, 7, 12);
-            
-            targetX = 0; currentLane = 0; 
-            obstacleTimer = 0; coinTimer = 0;
+            targetRotationY = Math.PI; matchCoins = 0; myAlive = true; gameEnded = false;
+            document.getElementById('coins-val').innerText = '0';
+            playerGroup.position.set(0, 0, 0); playerGroup.scale.y = 1;
+            camera.position.set(0, 7, 12); targetX = 0; currentLane = 0; obstacleTimer = 0; coinTimer = 0;
             velocityY = 0; isJumping = false; isSliding = false; currentGroundY = 0;
 
-            obstacles.forEach(o => { o.userData.active = false; o.position.z = 100; o.visible = false; }); 
-            coins.forEach(c => { c.userData.active = false; c.position.z = 100; c.visible = false; }); 
-            buildings.forEach(b => { b.userData.active = false; b.position.z = 100; b.visible = false; });
-            
-            let sleepIdx = 0;
-            for(let i=0; i<40; i++) {
-                lanesX.forEach(x => {
-                    if(sleepers.children[sleepIdx]) sleepers.children[sleepIdx].position.z = -i*5;
-                    sleepIdx++;
-                });
-            }
+            obstacles.forEach(o => { o.userData.active = false; o.position.z = 100; o.visible = false; });
+            coins.forEach(c => { c.userData.active = false; c.position.z = 100; c.visible = false; });
+            houses.forEach(h => { h.userData.active = false; h.position.z = 100; h.visible = false; });
 
+            let sleepIdx = 0;
+            for (let i = 0; i < 60; i++) {
+                lanesX.forEach(x => { if (sleepersGroup.children[sleepIdx]) sleepersGroup.children[sleepIdx].position.z = -i * 4; sleepIdx++; });
+            }
             gameSpeed = CONSTANT_SPEED; isGameRunning = true;
-            
-            if(isMultiplayer && currentRoom) {
+            if (isMultiplayer && currentRoom) {
                 update(ref(db, `rooms/${currentRoom}`), { status: 'playing', gameEnded: false });
-                const myStateKey = myNumId === opponentData?.id ? 'p1State' : 'p2State';
-                // نحتاج نعرف إذا احنا p1 أو p2
                 get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                     const r = snap.val();
-                    if(r) {
-                        const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
-                        update(ref(db, `rooms/${currentRoom}/${stateKey}`), { alive: true, coins: 0 });
-                    }
+                    if (r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { alive: true, coins: 0 });
                 });
             }
         }
 
         function loseGame() {
-            isGameRunning = false; gameSpeed = 0; 
-            targetRotationY = 0; 
-            myAlive = false;
-            
-            if(isMultiplayer && currentRoom && !gameEnded) {
-                // إرسال حالة الموت للغرفة
+            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; myAlive = false;
+            if (isMultiplayer && currentRoom && !gameEnded) {
                 get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                     const r = snap.val();
-                    if(r) {
+                    if (r && !gameEnded) {
+                        gameEnded = true;
                         const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
                         update(ref(db, `rooms/${currentRoom}/${stateKey}`), { alive: false, coins: matchCoins });
-                        
-                        // إذا الطرفين ماتوا (تعادل نادر) أو الخصم حي
-                        const oppStateKey = r.p1 === myNumId ? 'p2State' : 'p1State';
-                        const oppName = r.p1 === myNumId ? (r.p2Name || "الخصم") : (r.p1Name || "الخصم");
+                        const oppName = r.p1 === myNumId ? (r.p2Name || "لاعب") : (r.p1Name || "لاعب");
                         const oppId = r.p1 === myNumId ? r.p2 : r.p1;
-                        
-                        // أنا الخاسر - راح تظهرلي نافذة النتيجة بعد ما الخصم يموت أو بعد شوي
                         get(ref(db, `users/${oppId}`)).then(userSnap => {
                             const oppVictoryMsg = userSnap.exists() ? (userSnap.val().victoryMsg || "لقد فزت! 👑") : "لقد فزت! 👑";
-                            
-                            const rankings = [
-                                { name: oppName, coins: matchCoins }, // الخصم الفائز (مؤقتاً نفس العملات)
-                                { name: myName, coins: matchCoins }
-                            ];
-                            
-                            showResultOverlay(rankings, oppVictoryMsg, true);
+                            showResultOverlay([{ name: oppName, coins: matchCoins }, { name: myName, coins: matchCoins }], oppVictoryMsg, true);
                             showNotification("لقد خسرت الجولة! 😢");
                         });
-                        
-                        gameEnded = true;
                     }
                 });
             } else {
-                savedCoins += matchCoins; 
-                saveUserData(); 
+                savedCoins += matchCoins; saveUserData();
                 document.getElementById('coins-val').innerText = savedCoins;
                 showNotification("لقد خسرت الجولة!");
                 document.getElementById('start-prompt').classList.remove('hidden');
@@ -1150,48 +1217,46 @@
         }
 
         function winGame(oppCoins, oppName, oppVictoryMsg) {
-            isGameRunning = false; gameSpeed = 0; 
-            targetRotationY = 0; 
-            gameEnded = true;
-            
-            const total = matchCoins + (oppCoins || 0);
-            savedCoins += total; 
-            saveUserData();
-            document.getElementById('coins-val').innerText = savedCoins; 
-            
-            // ترتيب اللاعبين
-            const rankings = [
-                { name: myName, coins: matchCoins },
-                { name: oppName || "الخصم", coins: oppCoins || 0 }
-            ];
-            
-            // أنا الفائز - أشوف الترتيب فقط بدون رسالة فوز
-            showResultOverlay(rankings, null, false);
+            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; gameEnded = true;
+            const total = matchCoins + (oppCoins || 0); savedCoins += total; saveUserData();
+            document.getElementById('coins-val').innerText = savedCoins;
+            showResultOverlay([{ name: myName, coins: matchCoins }, { name: oppName || "لاعب", coins: oppCoins || 0 }], null, false);
             showNotification(`الفوز! حصدت ${total} ذهبة 🏆`);
-            
-            // تنظيف الغرفة
-            if(currentRoom) {
-                remove(ref(db, `rooms/${currentRoom}`));
-                currentRoom = null;
-            }
-            isMultiplayer = false;
-            opponentGroup.visible = false;
+            if (currentRoom) { remove(ref(db, `rooms/${currentRoom}`)); currentRoom = null; }
+            isMultiplayer = false; opponentGroup.visible = false;
         }
 
         let lastSync = 0;
         function animate(time) {
             requestAnimationFrame(animate);
-
             playerGroup.rotation.y += (targetRotationY - playerGroup.rotation.y) * 0.15;
 
-            if(isGameRunning) {
+            // نظام الكاميرا السلس اثناء التعديل
+            if(!isGameRunning && isCameraFocused) {
+                camera.position.lerp(targetCameraPos, 0.08);
+                currentCameraLookAt.lerp(targetCameraLookAt, 0.08);
+                camera.lookAt(currentCameraLookAt);
+                playerGroup.position.x = 0; // توسيط اللاعب عند التعديل
+            } else if (!isGameRunning && !isCameraFocused) {
+                // الكاميرا الطبيعية باللوبي
+                camera.position.lerp(targetCameraPos, 0.08);
+                currentCameraLookAt.lerp(targetCameraLookAt, 0.08);
+                camera.lookAt(currentCameraLookAt);
+                playerGroup.position.x = Math.sin(time * 0.002) * 0.1; // اهتزاز بسيط باللوبي
+                camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
+            }
+
+            if (isGameRunning) {
+                // حركة الكاميرا اثناء اللعب
+                currentCameraLookAt.set(playerGroup.position.x * 0.5, playerGroup.position.y + 2, playerGroup.position.z - 5);
+                camera.lookAt(currentCameraLookAt);
+
                 playerGroup.position.x += (targetX - playerGroup.position.x) * 0.2;
                 playerGroup.rotation.z = (playerGroup.position.x - targetX) * 0.05;
-
                 playerGroup.position.y += velocityY; velocityY += gravity;
-                if(playerGroup.position.y <= currentGroundY) { playerGroup.position.y = currentGroundY; velocityY = 0; isJumping = false; }
+                if (playerGroup.position.y <= currentGroundY) { playerGroup.position.y = currentGroundY; velocityY = 0; isJumping = false; }
 
-                if(!isJumping && !isSliding) {
+                if (!isJumping && !isSliding) {
                     runAnimTime += 0.4;
                     playerGroup.getObjectByName("lLeg").rotation.x = Math.sin(runAnimTime) * 0.7;
                     playerGroup.getObjectByName("rLeg").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
@@ -1205,67 +1270,39 @@
                 camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
                 camera.position.y = playerGroup.position.y + 7;
 
-                sleepers.children.forEach(s => { s.position.z += gameSpeed; if(s.position.z > camera.position.z + 10) s.position.z -= 200; });
-                
-                obstacles.forEach(o => { 
-                    if(o.userData.active) { 
-                        const extraSpeed = o.userData.type === 'train' ? 0.3 : 0;
-                        o.position.z += gameSpeed + extraSpeed; 
-                        
-                        if(o.position.z > camera.position.z + 30) {
-                            o.userData.active = false;
-                            o.visible = false;
-                            o.position.z = 100;
-                        } 
-                    } else {
-                        o.visible = false;
+                sleepersGroup.children.forEach(s => { s.position.z += gameSpeed; if (s.position.z > camera.position.z + 15) s.position.z -= 240; });
+                obstacles.forEach(o => {
+                    if (o.userData.active) {
+                        o.position.z += gameSpeed + (o.userData.type === 'train' ? 0.35 : 0);
+                        if (o.position.z > camera.position.z + 35) { o.userData.active = false; o.visible = false; o.position.z = 100; }
                     }
                 });
-                
-                buildings.forEach(b => { 
-                    if(b.userData.active) { 
-                        b.position.z += gameSpeed; 
-                        if(b.position.z > camera.position.z + 20) { 
-                            b.userData.active = false; 
-                            b.visible = false; 
-                            b.position.z = 100;
-                        } 
-                    } else { b.visible = false; } 
+                houses.forEach(h => {
+                    if (h.userData.active) { h.position.z += gameSpeed; if (h.position.z > camera.position.z + 25) { h.userData.active = false; h.visible = false; h.position.z = 100; } }
                 });
-                
-                coins.forEach(c => { 
-                    if(c.userData.active) { 
-                        c.position.z += gameSpeed; c.rotation.y += 0.1; 
-                        if(c.position.z > camera.position.z + 10) {
-                            c.userData.active = false; 
-                            c.visible = false;
-                            c.position.z = 100;
-                        } 
-                    } else { c.visible = false; }
+                coins.forEach(c => {
+                    if (c.userData.active) { c.position.z += gameSpeed; c.rotation.y += 0.1; if (c.position.z > camera.position.z + 12) { c.userData.active = false; c.visible = false; c.position.z = 100; } }
                 });
 
                 spawnObjects(); checkCollisions();
 
-                if(isMultiplayer && currentRoom && time - lastSync > 100) {
+                if (isMultiplayer && currentRoom && time - lastSync > 100) {
                     lastSync = time;
                     get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                         const r = snap.val();
-                        if(r) {
-                            const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
-                            update(ref(db, `rooms/${currentRoom}/${stateKey}`), { x: playerGroup.position.x, y: playerGroup.position.y, z: playerGroup.position.z, coins: matchCoins });
-                        }
+                        if (r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { x: playerGroup.position.x, y: playerGroup.position.y, z: playerGroup.position.z, coins: matchCoins });
                     });
                 }
-            } else {
-                playerGroup.position.x = Math.sin(time * 0.002) * 0.1;
-                camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
             }
             renderer.render(scene, camera);
         }
 
-        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-        
-        updateCharacterVisuals(); animate(0);
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate(0);
     </script>
 </body>
 </html>
