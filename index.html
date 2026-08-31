@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-    <title>Subway Run 3D - Ultra Realistic</title>
+    <title>قطارات العراق - نسخة واقعية</title>
     <style>
         * { box-sizing: border-box; }
         body, html {
@@ -68,14 +68,14 @@
         }
         .modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* شفافة اكثر لرؤية اللاعب خلفها */
+            background: rgba(0, 0, 0, 0.4);
             z-index: 20; display: flex; justify-content: flex-end; align-items: flex-end;
             flex-direction: column; opacity: 0; pointer-events: none; transition: 0.3s;
             padding-bottom: 20px;
         }
         .modal.active { opacity: 1; pointer-events: auto; }
         .modal-content {
-            background: rgba(26, 26, 46, 0.85); border: 2px solid #00ffcc; padding: 25px;
+            background: rgba(26, 26, 46, 0.85); border: 2px solid #00ffcc; padding: 20px;
             border-radius: 25px; width: 90%; max-width: 400px; color: white; text-align: center;
             position: relative; box-shadow: 0 15px 35px rgba(0, 255, 204, 0.3); max-height: 80vh;
             overflow-y: auto; margin: 0 auto; backdrop-filter: blur(10px);
@@ -83,9 +83,9 @@
         .close-btn {
             position: absolute; top: 12px; right: 15px; font-size: 26px; cursor: pointer; color: #ff0055;
             background: rgba(255,0,85,0.1); width: 35px; height: 35px; border-radius: 50%;
-            line-height: 35px; font-weight: bold;
+            line-height: 35px; font-weight: bold; z-index: 10;
         }
-        .modal input, .modal select {
+        .modal input {
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
             background: rgba(0,0,0,0.5); color: #fff; outline: none; text-align: center; font-weight: bold;
             font-family: inherit; font-size: 16px; box-sizing: border-box;
@@ -96,18 +96,38 @@
             font-size: 16px; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,255,204,0.3);
         }
         .save-btn:active { transform: scale(0.95); }
-        .style-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; }
+        
+        .horizontal-scroll {
+            display: flex; overflow-x: auto; gap: 10px; padding: 10px 5px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin; scrollbar-color: #00ffcc rgba(255,255,255,0.1);
+        }
+        .horizontal-scroll::-webkit-scrollbar { height: 6px; }
+        .horizontal-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .horizontal-scroll::-webkit-scrollbar-thumb { background: #00ffcc; border-radius: 10px; }
+        
         .style-btn {
             background: rgba(255,255,255,0.1); border: 2px solid transparent; color: white;
             padding: 10px 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: bold;
+            min-width: 80px; text-align: center; flex-shrink: 0; scroll-snap-align: start;
         }
         .style-btn.active, .style-btn:hover { border-color: #00ffcc; background: rgba(0,255,204,0.2); }
-        .color-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 15px; }
+        
+        .color-grid {
+            display: flex; overflow-x: auto; gap: 12px; padding: 10px 5px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin; scrollbar-color: #00ffcc rgba(255,255,255,0.1);
+        }
+        .color-grid::-webkit-scrollbar { height: 6px; }
+        .color-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .color-grid::-webkit-scrollbar-thumb { background: #00ffcc; border-radius: 10px; }
+        
         .swatch {
             width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255,255,255,0.2);
-            transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.5); flex-shrink: 0; scroll-snap-align: start;
         }
         .swatch:hover, .swatch.active { border-color: #00ffcc; transform: scale(1.1); }
+        
         .friend-box {
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px;
             padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
@@ -152,6 +172,41 @@
             border-radius: 20px; font-weight: 900; cursor: pointer; margin-top: 15px; font-size: 16px; width: 100%; transition: 0.2s;
         }
         #result-close-btn:active { transform: scale(0.95); }
+        
+        #pause-btn {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.6); border: 2px solid #ffd700; color: #ffd700;
+            width: 50px; height: 50px; border-radius: 50%; font-size: 24px;
+            cursor: pointer; z-index: 50; display: none; align-items: center; justify-content: center;
+            pointer-events: auto; transition: 0.2s;
+        }
+        #pause-btn:active { transform: translateX(-50%) scale(0.9); }
+        
+        #pause-menu {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 60; display: none;
+            justify-content: center; align-items: center; flex-direction: column; gap: 20px;
+            pointer-events: auto;
+        }
+        #pause-menu.active { display: flex; }
+        .pause-btn-option {
+            background: rgba(255,255,255,0.1); border: 2px solid #fff; color: #fff;
+            padding: 15px 40px; border-radius: 20px; font-size: 18px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; min-width: 200px; text-align: center;
+        }
+        .pause-btn-option:hover { background: rgba(255,255,255,0.2); }
+        .pause-btn-option.leave { border-color: #ff0055; color: #ff0055; }
+        .pause-btn-option.leave:hover { background: rgba(255,0,85,0.2); }
+        
+        .powerup-indicator {
+            position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 40; pointer-events: none;
+        }
+        .powerup-badge {
+            background: rgba(0,0,0,0.7); border: 2px solid #ffd700; color: #ffd700;
+            padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; gap: 5px;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -167,7 +222,9 @@
             <div class="coins-display">💰 <span id="coins-val">0</span></div>
         </div>
         <div id="start-prompt">اضغط في أي مكان للبدء</div>
+        <button id="pause-btn" onclick="togglePause()">⏸</button>
         <div id="hack-timer" class="hidden" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: rgba(0, 255, 0, 0.8); color: #000; padding: 5px 20px; border-radius: 12px; font-weight: 900; font-size: 24px; z-index: 100; box-shadow: 0 0 15px #00ff00;">60</div>
+        <div class="powerup-indicator" id="powerup-indicator"></div>
         <div class="bottom-ui" id="bottom-ui">
             <button class="cust-btn" onclick="openModal('gender-modal', 'body')"><i>🚻</i>الجنس</button>
             <button class="cust-btn" onclick="openModal('clothes-modal', 'body')"><i>👕</i>الملابس</button>
@@ -175,6 +232,13 @@
             <button class="cust-btn" onclick="openModal('face-modal', 'head')"><i>👁️</i>الوجه</button>
         </div>
     </div>
+    
+    <div id="pause-menu">
+        <h2 style="color: #fff; font-size: 28px; margin-bottom: 20px;">⏸ إيقاف مؤقت</h2>
+        <button class="pause-btn-option" onclick="togglePause()">▶ استئناف اللعب</button>
+        <button class="pause-btn-option leave" onclick="leaveMatch()">🚪 مغادرة المباراة</button>
+    </div>
+    
     <div id="countdown-overlay" class="hidden">3</div>
     <div id="result-overlay">
         <div id="result-box">
@@ -186,7 +250,6 @@
     </div>
     <div id="notification">رسالة</div>
     
-    <!-- Modals -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('settings-modal')">×</span>
@@ -229,10 +292,10 @@
     </div>
     
     <div id="gender-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 50vh;">
             <span class="close-btn" onclick="closeModal('gender-modal')">×</span>
             <h2>الجنس</h2>
-            <div class="style-options">
+            <div class="horizontal-scroll">
                 <button class="style-btn" onclick="updateCustoms('gender', 'boy')">ولد 👦</button>
                 <button class="style-btn" onclick="updateCustoms('gender', 'girl')">بنت 👧</button>
             </div>
@@ -240,32 +303,44 @@
     </div>
     
     <div id="face-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 60vh;">
             <span class="close-btn" onclick="closeModal('face-modal')">×</span>
             <h2>ملامح الوجه والعيون</h2>
-            <div class="style-options">
+            <div class="horizontal-scroll">
                 <button class="style-btn" onclick="updateCustoms('face', 'arab')">عربي</button>
                 <button class="style-btn" onclick="updateCustoms('face', 'euro')">أوروبي</button>
                 <button class="style-btn" onclick="updateCustoms('face', 'asian')">آسيوي</button>
+                <button class="style-btn" onclick="updateCustoms('face', 'african')">أفريقي</button>
+                <button class="style-btn" onclick="updateCustoms('face', 'latino')">لاتيني</button>
             </div>
             <h2>لون البشرة</h2>
             <div class="color-grid">
                 <div class="swatch" style="background: #ffe0bd;" onclick="updateCustoms('skin', '#ffe0bd')"></div>
                 <div class="swatch" style="background: #ffcc99;" onclick="updateCustoms('skin', '#ffcc99')"></div>
+                <div class="swatch" style="background: #f5c6a0;" onclick="updateCustoms('skin', '#f5c6a0')"></div>
+                <div class="swatch" style="background: #e8b88a;" onclick="updateCustoms('skin', '#e8b88a')"></div>
+                <div class="swatch" style="background: #d4a574;" onclick="updateCustoms('skin', '#d4a574')"></div>
                 <div class="swatch" style="background: #c68642;" onclick="updateCustoms('skin', '#c68642')"></div>
+                <div class="swatch" style="background: #b0703a;" onclick="updateCustoms('skin', '#b0703a')"></div>
                 <div class="swatch" style="background: #8d5524;" onclick="updateCustoms('skin', '#8d5524')"></div>
+                <div class="swatch" style="background: #6b3a1f;" onclick="updateCustoms('skin', '#6b3a1f')"></div>
+                <div class="swatch" style="background: #4a2512;" onclick="updateCustoms('skin', '#4a2512')"></div>
                 <div class="swatch" style="background: #3e2723;" onclick="updateCustoms('skin', '#3e2723')"></div>
+                <div class="swatch" style="background: #2a1a15;" onclick="updateCustoms('skin', '#2a1a15')"></div>
             </div>
         </div>
     </div>
     
     <div id="clothes-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 60vh;">
             <span class="close-btn" onclick="closeModal('clothes-modal')">×</span>
             <h2>شكل الملابس</h2>
-            <div class="style-options">
-                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'tshirt')">تيشرت صيفي</button>
-                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'longsleeve')">قميص طويل</button>
+            <div class="horizontal-scroll">
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'tshirt')">تيشرت</button>
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'longsleeve')">كم طويل</button>
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'hoodie')">هودي</button>
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'jacket')">جاكيت</button>
+                <button class="style-btn" onclick="updateCustoms('clothesStyle', 'sport')">رياضي</button>
             </div>
             <h2>لون الملابس</h2>
             <div class="color-grid">
@@ -275,34 +350,48 @@
                 <div class="swatch" style="background: #ffaa00;" onclick="updateCustoms('clothes', '#ffaa00');"></div>
                 <div class="swatch" style="background: #111111;" onclick="updateCustoms('clothes', '#111111');"></div>
                 <div class="swatch" style="background: #ffffff;" onclick="updateCustoms('clothes', '#ffffff');"></div>
+                <div class="swatch" style="background: #8800ff;" onclick="updateCustoms('clothes', '#8800ff');"></div>
+                <div class="swatch" style="background: #ff6600;" onclick="updateCustoms('clothes', '#ff6600');"></div>
+                <div class="swatch" style="background: #00aa00;" onclick="updateCustoms('clothes', '#00aa00');"></div>
+                <div class="swatch" style="background: #ffcc00;" onclick="updateCustoms('clothes', '#ffcc00');"></div>
+                <div class="swatch" style="background: #cc0000;" onclick="updateCustoms('clothes', '#cc0000');"></div>
+                <div class="swatch" style="background: #0066cc;" onclick="updateCustoms('clothes', '#0066cc');"></div>
             </div>
         </div>
     </div>
     
     <div id="hair-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 60vh;">
             <span class="close-btn" onclick="closeModal('hair-modal')">×</span>
             <h2>قصة الشعر</h2>
-            <div class="style-options">
-                <button class="style-btn" onclick="updateCustoms('hairStyle', 'short')">قصير عادي</button>
+            <div class="horizontal-scroll">
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'short')">قصير</button>
                 <button class="style-btn" onclick="updateCustoms('hairStyle', 'spiky')">سبايكي</button>
-                <button class="style-btn" onclick="updateCustoms('hairStyle', 'pony')">طويل (بناتي)</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'long')">طويل</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'bald')">أصلع</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'curly')">مجعد</button>
+                <button class="style-btn" onclick="updateCustoms('hairStyle', 'mohawk')">موهوك</button>
             </div>
             <h2>لون الشعر</h2>
             <div class="color-grid">
                 <div class="swatch" style="background: #090806;" onclick="updateCustoms('hair', '#090806')"></div>
                 <div class="swatch" style="background: #4a2711;" onclick="updateCustoms('hair', '#4a2711')"></div>
+                <div class="swatch" style="background: #6b3a1f;" onclick="updateCustoms('hair', '#6b3a1f')"></div>
+                <div class="swatch" style="background: #8d5524;" onclick="updateCustoms('hair', '#8d5524')"></div>
                 <div class="swatch" style="background: #faf0be;" onclick="updateCustoms('hair', '#faf0be')"></div>
+                <div class="swatch" style="background: #ffd700;" onclick="updateCustoms('hair', '#ffd700')"></div>
                 <div class="swatch" style="background: #7b291c;" onclick="updateCustoms('hair', '#7b291c')"></div>
                 <div class="swatch" style="background: #ffffff;" onclick="updateCustoms('hair', '#ffffff')"></div>
                 <div class="swatch" style="background: #ff0055;" onclick="updateCustoms('hair', '#ff0055')"></div>
+                <div class="swatch" style="background: #8800ff;" onclick="updateCustoms('hair', '#8800ff')"></div>
+                <div class="swatch" style="background: #00aaff;" onclick="updateCustoms('hair', '#00aaff')"></div>
+                <div class="swatch" style="background: #00cc00;" onclick="updateCustoms('hair', '#00cc00')"></div>
             </div>
         </div>
     </div>
-
-    <script type="module">
+        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, onDisconnect, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, onDisconnect, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -314,11 +403,20 @@
             appId: "1:210940387886:web:2c966266762c58077135bf"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
+        let app = null, db = null, auth = null;
+        let isOnline = false;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getDatabase(app);
+            auth = getAuth(app);
+            isOnline = true;
+        } catch(e) {
+            isOnline = false;
+            console.log("Firebase غير متاح، العمل بدون إنترنت");
+        }
 
-        // متغيرات النظام
+        // ==================== المتغيرات العامة ====================
         let uid = null;
         let myNumId = null;
         let myName = "لاعب";
@@ -334,27 +432,35 @@
             face: 'arab'
         };
 
-        // متغيرات الكاميرا للعرض السينمائي اثناء التعديل
-        let targetCameraPos = new THREE.Vector3(0, 7, 12);
-        let targetCameraLookAt = new THREE.Vector3(0, 2, 0);
-        let currentCameraLookAt = new THREE.Vector3(0, 2, 0);
+        // متغيرات الكاميرا
+        const targetCameraPos = new THREE.Vector3(0, 7, 12);
+        const targetCameraLookAt = new THREE.Vector3(0, 2, 0);
+        const currentCameraLookAt = new THREE.Vector3(0, 2, 0);
         let isCameraFocused = false;
 
+        // متغيرات الهدايا
+        const powerups = {
+            jumpBoost: { active: false, timeLeft: 0 },
+            magnet: { active: false, timeLeft: 0 },
+            speedBoost: { active: false, timeLeft: 0 }
+        };
+
+        // ==================== دوال الواجهة ====================
         window.openModal = function(id, focusType) {
             document.getElementById('ui-layer').style.opacity = '0';
             document.getElementById(id).classList.add('active');
             isCameraFocused = true;
             if(focusType === 'head') {
-                targetCameraPos.set(0, 3.5, 3.5);
+                targetCameraPos.set(0, 3.5, 2.5);
                 targetCameraLookAt.set(0, 3.0, 0);
             } else if(focusType === 'body') {
-                targetCameraPos.set(0, 2.5, 5);
+                targetCameraPos.set(0, 2.5, 4);
                 targetCameraLookAt.set(0, 1.5, 0);
             } else {
                 targetCameraPos.set(0, 7, 12);
                 targetCameraLookAt.set(0, 2, 0);
             }
-        }
+        };
 
         window.closeModal = function(id) {
             document.getElementById('ui-layer').style.opacity = '1';
@@ -362,14 +468,15 @@
             isCameraFocused = false;
             targetCameraPos.set(0, 7, 12);
             targetCameraLookAt.set(0, 2, 0);
-        }
+        };
 
         window.showNotification = function(msg) {
             const notif = document.getElementById('notification');
             notif.innerText = msg;
             notif.style.opacity = 1;
-            setTimeout(() => { notif.style.opacity = 0; }, 3000);
-        }
+            clearTimeout(window._notifTimeout);
+            window._notifTimeout = setTimeout(() => { notif.style.opacity = 0; }, 3000);
+        };
 
         window.closeResultOverlay = function() {
             document.getElementById('result-overlay').classList.remove('active');
@@ -377,105 +484,176 @@
             document.getElementById('start-prompt').innerText = "اضغط للعب مجدداً";
             document.getElementById('side-buttons').classList.remove('hidden');
             document.getElementById('bottom-ui').classList.remove('hidden');
-        }
+        };
 
-        // ================== نظام الـ Cache لتحميل أسرع من ثانية ==================
+        // ==================== نظام الإيقاف المؤقت ====================
+        let isPaused = false;
+        window.togglePause = function() {
+            if (!isGameRunning) return;
+            isPaused = !isPaused;
+            if (isPaused) {
+                document.getElementById('pause-menu').classList.add('active');
+                gameSpeed = 0;
+            } else {
+                document.getElementById('pause-menu').classList.remove('active');
+                gameSpeed = CONSTANT_SPEED;
+                if (powerups.speedBoost.active) gameSpeed *= 2;
+            }
+        };
+
+        window.leaveMatch = function() {
+            isPaused = false;
+            document.getElementById('pause-menu').classList.remove('active');
+            document.getElementById('pause-btn').style.display = 'none';
+            
+            if (isMultiplayer && currentRoom && isOnline && db) {
+                const stateKey = isP1 ? 'p1State' : 'p2State';
+                update(ref(db, `rooms/${currentRoom}/${stateKey}`), { alive: false, coins: matchCoins, disconnected: true });
+                remove(ref(db, `rooms/${currentRoom}`));
+                currentRoom = null;
+            }
+            
+            isGameRunning = false;
+            gameSpeed = 0;
+            myAlive = false;
+            gameEnded = true;
+            targetRotationY = 0;
+            playerGroup.position.set(0, 0, 0);
+            playerGroup.scale.y = 1;
+            playerGroup.rotation.z = 0;
+            playerGroup.rotation.x = 0;
+            
+            document.getElementById('start-prompt').classList.remove('hidden');
+            document.getElementById('start-prompt').innerText = "اضغط للعب مجدداً";
+            document.getElementById('side-buttons').classList.remove('hidden');
+            document.getElementById('bottom-ui').classList.remove('hidden');
+            
+            isMultiplayer = false;
+            opponentGroup.visible = false;
+            opponentData = null;
+        };
+
+        // ==================== نظام التخزين المحلي ====================
         function loadLocalCache() {
-            const localData = localStorage.getItem('subway_run_cache');
+            const localData = localStorage.getItem('subway_run_cache_v2');
             if (localData) {
-                const data = JSON.parse(localData);
-                myName = data.name || myName;
-                savedCoins = data.coins || 0;
-                victoryMessage = data.victoryMsg || victoryMessage;
-                if(data.customs) customizations = data.customs;
-                
-                document.getElementById('coins-val').innerText = savedCoins;
-                document.getElementById('player-name').value = myName;
-                document.getElementById('victory-msg-input').value = victoryMessage;
+                try {
+                    const data = JSON.parse(localData);
+                    myName = data.name || myName;
+                    savedCoins = data.coins || 0;
+                    victoryMessage = data.victoryMsg || victoryMessage;
+                    if(data.customs) customizations = data.customs;
+                    
+                    document.getElementById('coins-val').innerText = savedCoins;
+                    document.getElementById('player-name').value = myName;
+                    document.getElementById('victory-msg-input').value = victoryMessage;
+                } catch(e) {}
+            }
+            
+            const savedId = localStorage.getItem('subway_run_persistent_id');
+            if (savedId) {
+                myNumId = parseInt(savedId);
+                document.getElementById('player-id').innerText = myNumId;
+                if (isOnline && db) {
+                    loadUserDataFirebase();
+                    listenToFriends();
+                }
             }
         }
-        loadLocalCache(); // تطبيق مباشر قبل الفايربيس للسرعة
+        loadLocalCache();
 
         window.updateCustoms = function(key, val) {
             customizations[key] = val;
             
-            // ربط ذكي: إذا تم اختيار بنت، نغير الشعر افتراضياً للطويل
-            if(key === 'gender' && val === 'girl') customizations.hairStyle = 'pony';
-            if(key === 'gender' && val === 'boy') customizations.hairStyle = 'short';
+            if(key === 'gender' && val === 'girl' && customizations.hairStyle === 'short') {
+                customizations.hairStyle = 'long';
+            }
+            if(key === 'gender' && val === 'boy' && customizations.hairStyle === 'long') {
+                customizations.hairStyle = 'short';
+            }
 
             updateCharacterVisuals();
             saveUserData();
         };
 
+        // ==================== متغيرات اللعب ====================
         let currentRoom = null;
         let isMultiplayer = false;
+        let isP1 = true;
         let opponentData = null;
         let matchCoins = 0;
         let myAlive = true;
         let gameEnded = false;
         window.isCountingDown = false;
+        let roomCleanupTimeout = null;
 
-        signInAnonymously(auth);
-
-        const localSavedId = localStorage.getItem('subway_run_persistent_id');
-        if (localSavedId) {
-            myNumId = parseInt(localSavedId);
-            document.getElementById('player-id').innerText = myNumId;
-            loadUserDataFirebase();
-            listenToFriends();
-        }
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                uid = user.uid;
-                if (!myNumId) {
-                    const mapSnap = await get(ref(db, `uid_map/${uid}`));
-                    if (mapSnap.exists()) {
-                        myNumId = mapSnap.val();
-                        localStorage.setItem('subway_run_persistent_id', myNumId);
-                        document.getElementById('player-id').innerText = myNumId;
-                        loadUserDataFirebase();
-                        listenToFriends();
+        // ==================== Firebase Auth ====================
+        if (isOnline && auth) {
+            signInAnonymously(auth).catch(e => console.log("Auth error:", e));
+            
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    uid = user.uid;
+                    if (!myNumId) {
+                        try {
+                            const mapSnap = await get(ref(db, `uid_map/${uid}`));
+                            if (mapSnap.exists()) {
+                                myNumId = mapSnap.val();
+                                localStorage.setItem('subway_run_persistent_id', myNumId);
+                                document.getElementById('player-id').innerText = myNumId;
+                                loadUserDataFirebase();
+                                listenToFriends();
+                            }
+                        } catch(e) {}
                     }
                 }
-            }
-        });
+            });
+        }
 
+        // ==================== حفظ وتحميل البيانات ====================
         document.getElementById('save-settings-btn').addEventListener('click', async () => {
-            const nameInput = document.getElementById('player-name').value;
+            const nameInput = document.getElementById('player-name').value.trim();
             if (!nameInput) return showNotification("الرجاء كتابة اسمك أولاً!");
             myName = nameInput;
             victoryMessage = document.getElementById('victory-msg-input').value || victoryMessage;
+            
             if (!myNumId) {
                 myNumId = Math.floor(100000 + Math.random() * 900000);
                 localStorage.setItem('subway_run_persistent_id', myNumId);
-                if (uid) await set(ref(db, `uid_map/${uid}`), myNumId);
+                if (isOnline && db && uid) {
+                    await set(ref(db, `uid_map/${uid}`), myNumId);
+                }
                 document.getElementById('player-id').innerText = myNumId;
-                listenToFriends();
+                if (isOnline && db) listenToFriends();
             }
+            
             saveUserData();
             closeModal('settings-modal');
             showNotification("تم حفظ الحساب بنجاح!");
         });
 
         function saveUserData() {
-            // حفظ بذاكرة الهاتف لسرعة التحميل بالمرة القادمة
-            localStorage.setItem('subway_run_cache', JSON.stringify({
+            localStorage.setItem('subway_run_cache_v2', JSON.stringify({
                 name: myName, coins: savedCoins, victoryMsg: victoryMessage, customs: customizations
             }));
 
-            if (!myNumId) return;
-            // حل مشكلة حذف الأصدقاء: استخدام update بدلاً من set لعدم مسح البيانات الأخرى
-            update(ref(db, `users/${myNumId}`), {
+            if (!myNumId || !isOnline || !db) return;
+            
+            const userData = {
                 name: myName,
                 coins: savedCoins,
                 victoryMsg: victoryMessage,
-                customs: customizations
-            });
+                customs: customizations,
+                lastSeen: serverTimestamp()
+            };
+            
+            update(ref(db, `users/${myNumId}`), userData).catch(e => {});
         }
 
         function loadUserDataFirebase() {
-            onValue(ref(db, `users/${myNumId}`), (snapshot) => {
+            if (!isOnline || !db || !myNumId) return;
+            
+            get(ref(db, `users/${myNumId}`)).then(snapshot => {
                 const data = snapshot.val();
                 if (data) {
                     savedCoins = data.coins || 0;
@@ -488,23 +666,45 @@
                         customizations = data.customs;
                         updateCharacterVisuals();
                     }
-                    localStorage.setItem('subway_run_cache', JSON.stringify({
+                    localStorage.setItem('subway_run_cache_v2', JSON.stringify({
                         name: myName, coins: savedCoins, victoryMsg: victoryMessage, customs: customizations
                     }));
                 }
-            }, { onlyOnce: true });
+            }).catch(e => {});
         }
-
-        // ================== نظام الأصدقاء المعالج ==================
+                // ==================== نظام الأصدقاء ====================
         document.getElementById('add-friend-btn').addEventListener('click', async () => {
-            const targetId = document.getElementById('friend-id-input').value;
+            if (!isOnline || !db) return showNotification("يجب الاتصال بالإنترنت لإضافة أصدقاء");
+            if (!myNumId) return showNotification("قم بإنشاء حساب أولاً من الإعدادات");
+            
+            const targetId = parseInt(document.getElementById('friend-id-input').value);
             if (!targetId || targetId == myNumId) return showNotification("ID غير صالح!");
-            const targetSnap = await get(ref(db, `users/${targetId}`));
-            if (targetSnap.exists()) {
-                await set(ref(db, `users/${targetId}/requests/${myNumId}`), myName);
-                showNotification("تم إرسال طلب الصداقة بنجاح!");
-            } else {
-                showNotification("هذا اللاعب غير موجود!");
+            
+            try {
+                const targetSnap = await get(ref(db, `users/${targetId}`));
+                if (targetSnap.exists()) {
+                    // التحقق من عدم وجود صداقة مسبقة
+                    const existingFriend = await get(ref(db, `users/${myNumId}/friends/${targetId}`));
+                    if (existingFriend.exists()) {
+                        return showNotification("هذا اللاعب موجود في قائمة أصدقائك بالفعل!");
+                    }
+                    
+                    // التحقق من عدم وجود طلب مسبق
+                    const existingReq = await get(ref(db, `users/${targetId}/requests/${myNumId}`));
+                    if (existingReq.exists()) {
+                        return showNotification("تم إرسال طلب الصداقة مسبقاً!");
+                    }
+                    
+                    await set(ref(db, `users/${targetId}/requests/${myNumId}`), {
+                        name: myName,
+                        sentAt: serverTimestamp()
+                    });
+                    showNotification("تم إرسال طلب الصداقة بنجاح!");
+                } else {
+                    showNotification("هذا اللاعب غير موجود!");
+                }
+            } catch(e) {
+                showNotification("حدث خطأ في الاتصال");
             }
         });
 
@@ -512,18 +712,23 @@
         let hasRoomReqs = false;
 
         function updateBadge() {
-            document.getElementById('req-badge').style.display = (hasFriendReqs || hasRoomReqs) ? 'inline-block' : 'none';
+            const badge = document.getElementById('req-badge');
+            badge.style.display = (hasFriendReqs || hasRoomReqs) ? 'inline-block' : 'none';
         }
 
         function listenToFriends() {
-            if (!myNumId) return;
+            if (!myNumId || !isOnline || !db) return;
+            
+            // الاستماع لطلبات الصداقة
             onValue(ref(db, `users/${myNumId}/requests`), (snap) => {
                 const reqBox = document.getElementById('requests-list');
                 reqBox.innerHTML = '';
                 if (snap.exists()) {
                     hasFriendReqs = true;
                     snap.forEach(child => {
-                        const rId = child.key; const rName = child.val();
+                        const rId = child.key;
+                        const rData = child.val();
+                        const rName = typeof rData === 'string' ? rData : (rData.name || "لاعب");
                         reqBox.innerHTML += `
                             <div class="friend-box">
                                 <div><span class="friend-name">${rName}</span><span class="friend-id">ID: ${rId}</span></div>
@@ -539,33 +744,67 @@
                 }
                 updateBadge();
             });
-
+            
+            // الاستماع لدعوات اللعب
             onValue(ref(db, `users/${myNumId}/room_invites`), (snap) => {
                 const invBox = document.getElementById('room-invites-list');
                 invBox.innerHTML = '';
+                let inviteCount = 0;
+                
                 if (snap.exists()) {
-                    hasRoomReqs = true;
+                    const invites = [];
                     snap.forEach(child => {
-                        const hostId = child.key; const data = child.val();
-                        invBox.innerHTML += `
-                            <div class="friend-box" style="border: 2px solid #00ffcc;">
-                                <div><span class="friend-name">دعوة من: ${data.hostName}</span></div>
-                                <button class="btn-small green" onclick="acceptRoomInvite('${hostId}', '${data.roomId}')">قبول ولعب</button>
-                            </div>`;
+                        const hostId = child.key;
+                        const data = child.val();
+                        if (data && data.roomId) {
+                            invites.push({ hostId, data });
+                        }
                     });
+                    
+                    if (invites.length > 0) {
+                        hasRoomReqs = true;
+                        invites.forEach(({hostId, data}) => {
+                            // التحقق من وجود الغرفة وصلاحيتها
+                            get(ref(db, `rooms/${data.roomId}`)).then(roomSnap => {
+                                if (roomSnap.exists()) {
+                                    const roomData = roomSnap.val();
+                                    if (roomData.status === 'waiting' && !roomData.gameEnded) {
+                                        inviteCount++;
+                                        invBox.innerHTML += `
+                                            <div class="friend-box" style="border: 2px solid #00ffcc;">
+                                                <div><span class="friend-name">دعوة من: ${data.hostName || "لاعب"}</span></div>
+                                                <button class="btn-small green" onclick="acceptRoomInvite('${hostId}', '${data.roomId}')">قبول ولعب</button>
+                                            </div>`;
+                                    } else {
+                                        remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                                    }
+                                } else {
+                                    remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                                }
+                            }).catch(e => {
+                                remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                            });
+                        });
+                    } else {
+                        hasRoomReqs = false;
+                        invBox.innerHTML = '<p style="font-size:12px; color:#888;">لا توجد دعوات حالياً.</p>';
+                    }
                 } else {
                     hasRoomReqs = false;
                     invBox.innerHTML = '<p style="font-size:12px; color:#888;">لا توجد دعوات حالياً.</p>';
                 }
                 updateBadge();
             });
-
+            
+            // الاستماع لقائمة الأصدقاء
             onValue(ref(db, `users/${myNumId}/friends`), (snap) => {
                 const fBox = document.getElementById('friends-list');
                 fBox.innerHTML = '';
                 if (snap.exists()) {
                     snap.forEach(child => {
-                        const fId = child.key; const fName = child.val();
+                        const fId = child.key;
+                        const fData = child.val();
+                        const fName = typeof fData === 'string' ? fData : (fData.name || "لاعب");
                         fBox.innerHTML += `
                             <div class="friend-box">
                                 <div><span class="friend-name">${fName}</span><span class="friend-id">ID: ${fId}</span></div>
@@ -578,65 +817,187 @@
         }
 
         window.acceptReq = async function(fId, fName) {
-            await set(ref(db, `users/${myNumId}/friends/${fId}`), fName);
-            await set(ref(db, `users/${fId}/friends/${myNumId}`), myName);
-            await remove(ref(db, `users/${myNumId}/requests/${fId}`));
-            showNotification("أصبحتم أصدقاء! ✅");
+            if (!isOnline || !db) return;
+            try {
+                await set(ref(db, `users/${myNumId}/friends/${fId}`), { name: fName, since: serverTimestamp() });
+                await set(ref(db, `users/${fId}/friends/${myNumId}`), { name: myName, since: serverTimestamp() });
+                await remove(ref(db, `users/${myNumId}/requests/${fId}`));
+                showNotification("أصبحتم أصدقاء! ✅");
+            } catch(e) {
+                showNotification("حدث خطأ");
+            }
         };
-        window.rejectReq = async function(fId) { await remove(ref(db, `users/${myNumId}/requests/${fId}`)); };
+        
+        window.rejectReq = async function(fId) { 
+            if (!isOnline || !db) return;
+            await remove(ref(db, `users/${myNumId}/requests/${fId}`)); 
+        };
 
-        // ================== نظام الغرف ==================
-        document.getElementById('create-room-btn').addEventListener('click', () => {
+        // ==================== نظام الغرف العالمي ====================
+        document.getElementById('create-room-btn').addEventListener('click', async () => {
+            if (!isOnline || !db) return showNotification("يجب الاتصال بالإنترنت للعب الجماعي");
             if (!myNumId) return showNotification("قم بإنشاء حساب أولاً من الإعدادات");
+            
+            // تنظيف أي غرفة قديمة
+            if (currentRoom) {
+                remove(ref(db, `rooms/${currentRoom}`)).catch(e => {});
+            }
+            
             const roomId = 'room_' + myNumId + '_' + Date.now();
             currentRoom = roomId;
-            set(ref(db, `rooms/${roomId}`), {
-                p1: myNumId, p1Name: myName, status: 'waiting', gameEnded: false,
-                p1State: { alive: true, x: 0, y: 0, z: 0, coins: 0 }
-            });
-            onDisconnect(ref(db, `rooms/${roomId}`)).remove();
+            isP1 = true;
             
-            const roomContent = document.getElementById('room-modal-content');
-            roomContent.innerHTML = `
-                <span class="close-btn" onclick="closeModal('rooms-modal'); location.reload();">×</span>
-                <h2>دعوة الأصدقاء</h2>
-                <p style="color:#00ffcc; font-size:14px; margin-bottom:15px;">الغرفة جاهزة. أرسل دعوة...</p>
-                <div id="invite-friends-list">جاري التحميل...</div>
-            `;
-            get(ref(db, `users/${myNumId}/friends`)).then(snap => {
-                const rfBox = document.getElementById('invite-friends-list');
-                rfBox.innerHTML = '';
-                if (snap.exists()) {
-                    snap.forEach(child => {
-                        const fId = child.key; const fName = child.val();
-                        rfBox.innerHTML += `
-                            <div class="friend-box">
-                                <div><span class="friend-name">${fName}</span></div>
-                                <button class="btn-small green" onclick="sendRoomInvite('${fId}', '${roomId}')">إرسال دعوة</button>
-                            </div>`;
-                    });
-                } else {
-                    rfBox.innerHTML = '<p>ليس لديك أصدقاء حالياً لإرسال دعوة.</p>';
-                }
-            });
-            listenToRoom();
+            try {
+                await set(ref(db, `rooms/${roomId}`), {
+                    p1: myNumId,
+                    p1Name: myName,
+                    p2: null,
+                    p2Name: null,
+                    status: 'waiting',
+                    gameEnded: false,
+                    p1State: { 
+                        alive: true, x: 0, y: 0, z: 0, coins: 0, 
+                        disconnected: false, lastSync: serverTimestamp() 
+                    },
+                    p2State: { 
+                        alive: true, x: 0, y: 0, z: 0, coins: 0, 
+                        disconnected: false, lastSync: serverTimestamp() 
+                    },
+                    createdAt: serverTimestamp(),
+                    lastActivity: serverTimestamp(),
+                    matchWinner: null,
+                    matchLoser: null
+                });
+                
+                onDisconnect(ref(db, `rooms/${roomId}/p1State`)).update({ 
+                    disconnected: true, 
+                    alive: false,
+                    lastSync: serverTimestamp() 
+                });
+                
+                const roomContent = document.getElementById('room-modal-content');
+                roomContent.innerHTML = `
+                    <span class="close-btn" onclick="closeRoomAndReload()">×</span>
+                    <h2>دعوة الأصدقاء</h2>
+                    <p style="color:#00ffcc; font-size:14px; margin-bottom:15px;">الغرفة جاهزة! أرسل دعوة لأصدقائك</p>
+                    <div id="invite-friends-list">جاري تحميل الأصدقاء...</div>
+                    <button class="save-btn" onclick="closeRoom()" style="background: #ff0055; color: #fff; margin-top: 20px;">إغلاق الغرفة</button>
+                `;
+                
+                get(ref(db, `users/${myNumId}/friends`)).then(snap => {
+                    const rfBox = document.getElementById('invite-friends-list');
+                    rfBox.innerHTML = '';
+                    if (snap.exists()) {
+                        snap.forEach(child => {
+                            const fId = child.key;
+                            const fData = child.val();
+                            const fName = typeof fData === 'string' ? fData : (fData.name || "لاعب");
+                            rfBox.innerHTML += `
+                                <div class="friend-box">
+                                    <div><span class="friend-name">${fName}</span><span class="friend-id">ID: ${fId}</span></div>
+                                    <button class="btn-small green" onclick="sendRoomInvite('${fId}', '${roomId}')">إرسال دعوة</button>
+                                </div>`;
+                        });
+                        if (rfBox.innerHTML === '') {
+                            rfBox.innerHTML = '<p>ليس لديك أصدقاء لإرسال دعوة.</p>';
+                        }
+                    } else {
+                        rfBox.innerHTML = '<p>ليس لديك أصدقاء لإرسال دعوة.</p>';
+                    }
+                }).catch(e => {
+                    document.getElementById('invite-friends-list').innerHTML = '<p>تعذر تحميل الأصدقاء</p>';
+                });
+                
+                listenToRoom();
+            } catch(e) {
+                showNotification("تعذر إنشاء الغرفة");
+                currentRoom = null;
+            }
         });
 
+        window.closeRoomAndReload = function() {
+            closeRoom();
+            setTimeout(() => location.reload(), 300);
+        };
+
+        window.closeRoom = function() {
+            if (currentRoom && isOnline && db) {
+                remove(ref(db, `rooms/${currentRoom}`)).catch(e => {});
+                currentRoom = null;
+            }
+            closeModal('rooms-modal');
+            showNotification("تم إغلاق الغرفة");
+        };
+
         window.sendRoomInvite = async function(fId, roomId) {
-            await set(ref(db, `users/${fId}/room_invites/${myNumId}`), { roomId: roomId, hostName: myName });
+            if (!isOnline || !db) return;
+            
+            // التحقق من عدم وجود دعوة مسبقة لنفس الغرفة
+            const existingInvite = await get(ref(db, `users/${fId}/room_invites/${myNumId}`));
+            if (existingInvite.exists()) {
+                const existingData = existingInvite.val();
+                if (existingData && existingData.roomId === roomId) {
+                    return showNotification("تم إرسال الدعوة مسبقاً!");
+                }
+            }
+            
+            await set(ref(db, `users/${fId}/room_invites/${myNumId}`), { 
+                roomId: roomId, 
+                hostName: myName,
+                sentAt: serverTimestamp()
+            });
             showNotification("تم إرسال الدعوة بنجاح!");
-        }
+        };
 
         window.acceptRoomInvite = async function(hostId, roomId) {
-            await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
-            currentRoom = roomId;
-            update(ref(db, `rooms/${roomId}`), {
-                p2: myNumId, p2Name: myName, status: 'ready', gameEnded: false,
-                p2State: { alive: true, x: 0, y: 0, z: 0, coins: 0 }
-            });
-            onDisconnect(ref(db, `rooms/${roomId}/p2State/alive`)).set(false);
-            listenToRoom();
-        }
+            if (!isOnline || !db) return;
+            if (!myNumId) return showNotification("قم بإنشاء حساب أولاً");
+            
+            try {
+                const roomSnap = await get(ref(db, `rooms/${roomId}`));
+                if (!roomSnap.exists()) {
+                    await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                    return showNotification("هذه الدعوة منتهية!");
+                }
+                
+                const roomData = roomSnap.val();
+                if (roomData.status !== 'waiting' || roomData.gameEnded) {
+                    await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                    return showNotification("هذه الغرفة بدأت بالفعل!");
+                }
+                
+                if (roomData.p2 !== null && roomData.p2 !== myNumId) {
+                    return showNotification("الغرفة ممتلئة!");
+                }
+                
+                await remove(ref(db, `users/${myNumId}/room_invites/${hostId}`));
+                
+                currentRoom = roomId;
+                isP1 = false;
+                
+                await update(ref(db, `rooms/${roomId}`), {
+                    p2: myNumId,
+                    p2Name: myName,
+                    status: 'ready',
+                    gameEnded: false,
+                    lastActivity: serverTimestamp(),
+                    p2State: { 
+                        alive: true, x: 0, y: 0, z: 0, coins: 0, 
+                        disconnected: false, lastSync: serverTimestamp() 
+                    }
+                });
+                
+                onDisconnect(ref(db, `rooms/${roomId}/p2State`)).update({ 
+                    disconnected: true, 
+                    alive: false,
+                    lastSync: serverTimestamp() 
+                });
+                
+                listenToRoom();
+            } catch(e) {
+                showNotification("حدث خطأ في الانضمام للغرفة");
+            }
+        };
 
         function startCountdown() {
             window.isCountingDown = true;
@@ -646,15 +1007,19 @@
             document.getElementById('side-buttons').classList.add('hidden');
             document.getElementById('bottom-ui').classList.add('hidden');
             document.getElementById('start-prompt').classList.add('hidden');
+            
             const overlay = document.getElementById('countdown-overlay');
             overlay.classList.remove('hidden');
             let count = 3;
             overlay.innerText = count;
+            
             let interval = setInterval(() => {
                 count--;
-                if (count > 0) overlay.innerText = count;
-                else if (count === 0) overlay.innerText = "انطلق!";
-                else {
+                if (count > 0) {
+                    overlay.innerText = count;
+                } else if (count === 0) {
+                    overlay.innerText = "انطلق!";
+                } else {
                     clearInterval(interval);
                     overlay.classList.add('hidden');
                     window.isCountingDown = false;
@@ -662,49 +1027,119 @@
                 }
             }, 1000);
         }
-
+                // ==================== نظام مراقبة الغرفة والمزامنة اللحظية ====================
         function listenToRoom() {
+            if (!isOnline || !db || !currentRoom) return;
+            
             isMultiplayer = true;
+            
             onValue(ref(db, `rooms/${currentRoom}`), (snapshot) => {
                 const data = snapshot.val();
-                if (!data) return;
-                if (data.status === 'ready' && !window.isCountingDown && !isGameRunning) startCountdown();
+                if (!data) {
+                    // الغرفة انتهت أو حُذفت
+                    if (isGameRunning) {
+                        showNotification("انتهت الغرفة");
+                        leaveMatch();
+                    }
+                    return;
+                }
                 
-                const isP1 = data.p1 === myNumId;
+                // التحقق من حالة الغرفة
+                if (data.gameEnded && data.status === 'ended') {
+                    if (isGameRunning) {
+                        showNotification("انتهت المباراة");
+                        leaveMatch();
+                    }
+                    return;
+                }
+                
+                // التحقق من انقطاع الخصم
                 const oppState = isP1 ? data.p2State : data.p1State;
                 const oppName = isP1 ? (data.p2Name || "لاعب") : (data.p1Name || "لاعب");
                 const oppId = isP1 ? data.p2 : data.p1;
-
+                
+                if (oppState && oppState.disconnected && isGameRunning && !gameEnded) {
+                    // الخصم انقطع - فوز تلقائي
+                    gameEnded = true;
+                    winGame(oppState.coins || 0, oppName, "لقد فزت! 👑");
+                    return;
+                }
+                
+                // التحقق من بدء اللعبة
+                if (data.status === 'ready' && !window.isCountingDown && !isGameRunning) {
+                    startCountdown();
+                }
+                
+                if (data.status === 'playing' && !isGameRunning && !window.isCountingDown && !gameEnded) {
+                    // تأخر في البدء - مزامنة
+                    startGame();
+                }
+                
+                // تحديث حالة الخصم
                 if (oppState) {
-                    opponentData = { ...oppState, name: oppName, id: oppId, victoryMsg: '' };
-                    opponentGroup.position.x = oppState.x || 0;
-                    opponentGroup.position.y = oppState.y || 0;
-                    opponentGroup.position.z = playerGroup.position.z;
-                    opponentGroup.visible = true;
+                    opponentData = { 
+                        ...oppState, 
+                        name: oppName, 
+                        id: oppId, 
+                        victoryMsg: '' 
+                    };
                     
-                    get(ref(db, `users/${oppId}`)).then(userSnap => {
-                        if (userSnap.exists() && opponentData) {
-                            opponentData.victoryMsg = userSnap.val().victoryMsg || "لقد فزت! 👑";
+                    // تحديث موقع الخصم بسلاسة
+                    if (opponentGroup) {
+                        opponentGroup.position.x = oppState.x || 0;
+                        opponentGroup.position.y = oppState.y || 0;
+                        opponentGroup.position.z = playerGroup.position.z;
+                        opponentGroup.visible = true;
+                        
+                        // تحديث حالة الخصم (حية/ميتة)
+                        if (oppState.alive === false) {
+                            opponentGroup.rotation.z = Math.PI / 2;
+                        } else {
+                            opponentGroup.rotation.z = 0;
                         }
-                    });
+                    }
                     
-                    if (!oppState.alive && myAlive && isGameRunning && !gameEnded) {
+                    // جلب رسالة انتصار الخصم
+                    if (oppId && isOnline && db) {
+                        get(ref(db, `users/${oppId}`)).then(userSnap => {
+                            if (userSnap.exists() && opponentData) {
+                                const userData = userSnap.val();
+                                opponentData.victoryMsg = userData.victoryMsg || "لقد فزت! 👑";
+                            }
+                        }).catch(e => {});
+                    }
+                    
+                    // التحقق من موت الخصم
+                    if (oppState.alive === false && myAlive && isGameRunning && !gameEnded) {
                         gameEnded = true;
                         winGame(oppState.coins || 0, oppName, opponentData.victoryMsg || "لقد فزت! 👑");
+                    }
+                }
+                
+                // تحديث lastActivity
+                if (isOnline && db && currentRoom) {
+                    const now = Date.now();
+                    const lastActivity = data.lastActivity || now;
+                    if (now - lastActivity > 30000 && !gameEnded) {
+                        // الغرفة خاملة - تنظيف
+                        remove(ref(db, `rooms/${currentRoom}`)).catch(e => {});
                     }
                 }
             });
         }
 
+        // ==================== عرض النتائج ====================
         function showResultOverlay(rankings, victoryMsgForLoser, isLoser) {
             const overlay = document.getElementById('result-overlay');
             const rankingsDiv = document.getElementById('result-rankings');
             const victoryMsgDiv = document.getElementById('result-victory-msg');
+            
             rankingsDiv.innerHTML = '';
             rankings.forEach((player, index) => {
-                const rankClass = index === 0 ? 'first' : 'second';
+                const rankClass = index === 0 ? 'first' : '';
                 const badgeClass = index === 0 ? 'gold' : 'silver';
                 const badgeText = index === 0 ? '🥇' : '🥈';
+                
                 rankingsDiv.innerHTML += `
                     <div class="rank-item ${rankClass}">
                         <div class="rank-badge ${badgeClass}">${badgeText}</div>
@@ -714,37 +1149,984 @@
                         </div>
                     </div>`;
             });
+            
             if (isLoser && victoryMsgForLoser) {
                 victoryMsgDiv.style.display = 'block';
                 victoryMsgDiv.innerText = '💬 ' + victoryMsgForLoser;
             } else {
                 victoryMsgDiv.style.display = 'none';
             }
+            
             overlay.classList.add('active');
         }
 
-        // ================== محرك 3D والرسوميات الواقعية ==================
+        // ==================== نظام الجوائز الواقعية ====================
+        function createRealisticPowerup(type) {
+            const group = new THREE.Group();
+            
+            if (type === 'magnet') {
+                // مغناطيس على شكل حرف U واقعي
+                const magnetMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xcc0000, metalness: 0.9, roughness: 0.2 
+                });
+                const magnetTipMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xdddddd, metalness: 0.9, roughness: 0.1 
+                });
+                
+                // الجسم الرئيسي للمغناطيس (شكل U)
+                const mainBody = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.18, 8, 16, Math.PI), magnetMat);
+                mainBody.rotation.z = Math.PI;
+                mainBody.castShadow = true;
+                group.add(mainBody);
+                
+                // طرفي المغناطيس
+                const tip1 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12), magnetTipMat);
+                tip1.position.set(-0.5, 0.1, 0);
+                tip1.castShadow = true;
+                group.add(tip1);
+                
+                const tip2 = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.15, 12), magnetTipMat);
+                tip2.position.set(0.5, 0.1, 0);
+                tip2.castShadow = true;
+                group.add(tip2);
+                
+                group.scale.set(1.2, 1.2, 1.2);
+                
+            } else if (type === 'jumpBoost') {
+                // حذاء رياضي واقعي
+                const shoeMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x00ff00, roughness: 0.4, metalness: 0.1 
+                });
+                const soleMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff, roughness: 0.6, metalness: 0.1 
+                });
+                const laceMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff, roughness: 0.3, metalness: 0.1 
+                });
+                
+                // جسم الحذاء
+                const shoeBody = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 1.4), shoeMat);
+                shoeBody.position.y = 0.3;
+                shoeBody.castShadow = true;
+                group.add(shoeBody);
+                
+                // النعل
+                const sole = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.25, 1.6), soleMat);
+                sole.position.y = 0.05;
+                sole.castShadow = true;
+                group.add(sole);
+                
+                // مقدمة الحذاء
+                const toe = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), shoeMat);
+                toe.scale.set(1, 0.5, 1.5);
+                toe.position.set(0, 0.3, 0.9);
+                toe.castShadow = true;
+                group.add(toe);
+                
+                // الأربطة
+                for (let i = 0; i < 3; i++) {
+                    const lace = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.08), laceMat);
+                    lace.position.set(0, 0.45, 0.2 + i * 0.25);
+                    group.add(lace);
+                }
+                
+                group.scale.set(1.5, 1.5, 1.5);
+                
+            } else if (type === 'speedBoost') {
+                // زلاجة تزلج واقعية
+                const skateMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x0000ff, roughness: 0.3, metalness: 0.4 
+                });
+                const wheelMat = new THREE.MeshStandardMaterial({ 
+                    color: 0x333333, roughness: 0.5, metalness: 0.6 
+                });
+                const stripeMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xffffff, roughness: 0.2, metalness: 0.2 
+                });
+                
+                // جسم الزلاجة
+                const skateBody = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 1.5), skateMat);
+                skateBody.position.y = 0.3;
+                skateBody.castShadow = true;
+                group.add(skateBody);
+                
+                // خط أبيض
+                const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.22, 1.4), stripeMat);
+                stripe.position.set(0, 0.3, 0);
+                group.add(stripe);
+                
+                // العجلات
+                for (let i = 0; i < 4; i++) {
+                    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.15, 12), wheelMat);
+                    wheel.rotation.z = Math.PI / 2;
+                    wheel.position.set(0.35, 0.12, -0.4 + i * 0.3);
+                    wheel.castShadow = true;
+                    group.add(wheel);
+                    
+                    const wheel2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.15, 12), wheelMat);
+                    wheel2.rotation.z = Math.PI / 2;
+                    wheel2.position.set(-0.35, 0.12, -0.4 + i * 0.3);
+                    wheel2.castShadow = true;
+                    group.add(wheel2);
+                }
+                
+                group.scale.set(1.5, 1.5, 1.5);
+            }
+            
+            // هالة توهج ذهبية خفيفة
+            const glowGeo = new THREE.SphereGeometry(1.2, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffd700, 
+                transparent: true, 
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.name = "glow";
+            group.add(glow);
+            
+            group.userData = { type: type, active: false };
+            return group;
+        }
+
+        // ==================== العملات الذهبية اللامعة ====================
+        function createShinyCoin() {
+            const group = new THREE.Group();
+            
+            // العملة الرئيسية
+            const coinGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.12, 32);
+            const coinMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffd700, 
+                metalness: 1.0, 
+                roughness: 0.05,
+                emissive: 0xcc9900,
+                emissiveIntensity: 0.4
+            });
+            const coin = new THREE.Mesh(coinGeo, coinMat);
+            coin.rotation.x = Math.PI / 2;
+            coin.castShadow = true;
+            group.add(coin);
+            
+            // حافة العملة
+            const edgeGeo = new THREE.TorusGeometry(0.7, 0.06, 8, 32);
+            const edgeMat = new THREE.MeshStandardMaterial({ 
+                color: 0xcc9900, 
+                metalness: 1.0, 
+                roughness: 0.1,
+                emissive: 0x996600,
+                emissiveIntensity: 0.3
+            });
+            const edge = new THREE.Mesh(edgeGeo, edgeMat);
+            edge.rotation.x = Math.PI / 2;
+            group.add(edge);
+            
+            // نجمة في المنتصف
+            const starGeo = new THREE.OctahedronGeometry(0.25);
+            const starMat = new THREE.MeshStandardMaterial({ 
+                color: 0xfff5cc, 
+                metalness: 0.8, 
+                roughness: 0.2,
+                emissive: 0xffcc00,
+                emissiveIntensity: 0.3
+            });
+            const star = new THREE.Mesh(starGeo, starMat);
+            star.rotation.x = Math.PI / 2;
+            star.castShadow = true;
+            group.add(star);
+            
+            // توهج ذهبي
+            const glowGeo = new THREE.SphereGeometry(1.0, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({ 
+                color: 0xffd700, 
+                transparent: true, 
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.name = "glow";
+            group.add(glow);
+            
+            group.userData = { active: false };
+            return group;
+        }
+                // ==================== إنشاء الشخصية الواقعية ====================
+        function createRealisticCharacter(isGhost = false) {
+            const group = new THREE.Group();
+            
+            // المواد الأساسية
+            const skinMat = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color(customizations.skin), 
+                roughness: 0.45, 
+                metalness: 0.05 
+            });
+            const clothesMat = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color(customizations.clothes), 
+                roughness: 0.7, 
+                metalness: 0.1 
+            });
+            const pantsMat = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a2e, 
+                roughness: 0.8, 
+                metalness: 0.05 
+            });
+            const hairMat = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color(customizations.hair), 
+                roughness: 0.6, 
+                metalness: 0.15 
+            });
+            const shoeMat = new THREE.MeshStandardMaterial({ 
+                color: 0x222222, 
+                roughness: 0.5, 
+                metalness: 0.2 
+            });
+            const eyeWhiteMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff, 
+                roughness: 0.1, 
+                metalness: 0.0 
+            });
+            const mouthMat = new THREE.MeshStandardMaterial({ 
+                color: 0xcc4444, 
+                roughness: 0.3, 
+                metalness: 0.0 
+            });
+            const lipMat = new THREE.MeshStandardMaterial({ 
+                color: 0xdd6666, 
+                roughness: 0.25, 
+                metalness: 0.0 
+            });
+            const earMat = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color(customizations.skin), 
+                roughness: 0.5, 
+                metalness: 0.05 
+            });
+            const browMat = new THREE.MeshStandardMaterial({ 
+                color: new THREE.Color(customizations.hair), 
+                roughness: 0.8, 
+                metalness: 0.0 
+            });
+            
+            // ==================== الرأس ====================
+            const headGroup = new THREE.Group();
+            headGroup.name = "headGroup";
+            headGroup.position.y = 2.85;
+            
+            // الجمجمة - شكل بيضاوي واقعي
+            const skullGeo = new THREE.SphereGeometry(0.52, 32, 32);
+            skullGeo.scale(1.0, 1.15, 0.92);
+            const skull = new THREE.Mesh(skullGeo, skinMat);
+            skull.name = "skull";
+            skull.castShadow = !isGhost;
+            skull.receiveShadow = !isGhost;
+            headGroup.add(skull);
+            
+            // الفك السفلي - لإعطاء عمق للوجه
+            const jawGeo = new THREE.SphereGeometry(0.35, 24, 24);
+            jawGeo.scale(0.85, 0.4, 0.7);
+            const jaw = new THREE.Mesh(jawGeo, skinMat);
+            jaw.position.set(0, -0.35, 0.05);
+            jaw.name = "jaw";
+            headGroup.add(jaw);
+            
+            // ==================== الأذنين ====================
+            const earGeo = new THREE.SphereGeometry(0.18, 16, 16);
+            earGeo.scale(0.5, 1.2, 0.6);
+            
+            const leftEar = new THREE.Mesh(earGeo, earMat);
+            leftEar.position.set(-0.48, 0.0, 0.0);
+            leftEar.name = "leftEar";
+            leftEar.castShadow = !isGhost;
+            headGroup.add(leftEar);
+            
+            const rightEar = new THREE.Mesh(earGeo, earMat);
+            rightEar.position.set(0.48, 0.0, 0.0);
+            rightEar.name = "rightEar";
+            rightEar.castShadow = !isGhost;
+            headGroup.add(rightEar);
+            
+            // تفاصيل الأذن الداخلية
+            const innerEarGeo = new THREE.SphereGeometry(0.09, 12, 12);
+            innerEarGeo.scale(0.4, 1.0, 0.5);
+            const innerEarMat = new THREE.MeshStandardMaterial({ 
+                color: 0xddaa88, 
+                roughness: 0.6 
+            });
+            
+            const leftInnerEar = new THREE.Mesh(innerEarGeo, innerEarMat);
+            leftInnerEar.position.set(-0.5, 0.0, 0.02);
+            leftInnerEar.name = "leftInnerEar";
+            headGroup.add(leftInnerEar);
+            
+            const rightInnerEar = new THREE.Mesh(innerEarGeo, innerEarMat);
+            rightInnerEar.position.set(0.5, 0.0, 0.02);
+            rightInnerEar.name = "rightInnerEar";
+            headGroup.add(rightInnerEar);
+            
+            // ==================== العيون ====================
+            const eyeGroup = new THREE.Group();
+            eyeGroup.name = "eyeGroup";
+            
+            // محجر العين
+            const eyeSocketGeo = new THREE.SphereGeometry(0.19, 16, 16);
+            eyeSocketGeo.scale(0.9, 0.7, 0.5);
+            
+            const leftSocket = new THREE.Mesh(eyeSocketGeo, skinMat);
+            leftSocket.position.set(-0.2, 0.05, 0.42);
+            leftSocket.name = "leftSocket";
+            headGroup.add(leftSocket);
+            
+            const rightSocket = new THREE.Mesh(eyeSocketGeo, skinMat);
+            rightSocket.position.set(0.2, 0.05, 0.42);
+            rightSocket.name = "rightSocket";
+            headGroup.add(rightSocket);
+            
+            // بياض العين
+            const eyeWhiteGeo = new THREE.SphereGeometry(0.14, 24, 24);
+            eyeWhiteGeo.scale(0.85, 0.7, 0.5);
+            
+            const leftEyeWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+            leftEyeWhite.position.set(-0.2, 0.05, 0.47);
+            leftEyeWhite.name = "leftEyeWhite";
+            headGroup.add(leftEyeWhite);
+            
+            const rightEyeWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+            rightEyeWhite.position.set(0.2, 0.05, 0.47);
+            rightEyeWhite.name = "rightEyeWhite";
+            headGroup.add(rightEyeWhite);
+            
+            // القزحية والحدقة
+            const irisGeo = new THREE.SphereGeometry(0.08, 16, 16);
+            irisGeo.scale(0.8, 0.8, 0.4);
+            const irisMat = new THREE.MeshStandardMaterial({ 
+                color: 0x2b1b00, 
+                roughness: 0.1, 
+                metalness: 0.3 
+            });
+            
+            const leftIris = new THREE.Mesh(irisGeo, irisMat);
+            leftIris.position.set(-0.2, 0.05, 0.52);
+            leftIris.name = "leftIris";
+            headGroup.add(leftIris);
+            
+            const rightIris = new THREE.Mesh(irisGeo, irisMat);
+            rightIris.position.set(0.2, 0.05, 0.52);
+            rightIris.name = "rightIris";
+            headGroup.add(rightIris);
+            
+            // الحدقة
+            const pupilGeo = new THREE.SphereGeometry(0.045, 12, 12);
+            pupilGeo.scale(0.8, 0.8, 0.3);
+            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            
+            const leftPupil = new THREE.Mesh(pupilGeo, pupilMat);
+            leftPupil.position.set(-0.2, 0.05, 0.55);
+            leftPupil.name = "leftPupil";
+            headGroup.add(leftPupil);
+            
+            const rightPupil = new THREE.Mesh(pupilGeo, pupilMat);
+            rightPupil.position.set(0.2, 0.05, 0.55);
+            rightPupil.name = "rightPupil";
+            headGroup.add(rightPupil);
+            
+            // لمعان العين
+            const eyeGlintGeo = new THREE.SphereGeometry(0.025, 8, 8);
+            const eyeGlintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            
+            const leftGlint = new THREE.Mesh(eyeGlintGeo, eyeGlintMat);
+            leftGlint.position.set(-0.16, 0.09, 0.56);
+            leftGlint.name = "leftGlint";
+            headGroup.add(leftGlint);
+            
+            const rightGlint = new THREE.Mesh(eyeGlintGeo, eyeGlintMat);
+            rightGlint.position.set(0.24, 0.09, 0.56);
+            rightGlint.name = "rightGlint";
+            headGroup.add(rightGlint);
+            
+            // الجفون
+            const eyelidGeo = new THREE.SphereGeometry(0.145, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+            eyelidGeo.scale(0.85, 0.35, 0.5);
+            
+            const leftEyelid = new THREE.Mesh(eyelidGeo, skinMat);
+            leftEyelid.position.set(-0.2, 0.12, 0.47);
+            leftEyelid.name = "leftEyelid";
+            headGroup.add(leftEyelid);
+            
+            const rightEyelid = new THREE.Mesh(eyelidGeo, skinMat);
+            rightEyelid.position.set(0.2, 0.12, 0.47);
+            rightEyelid.name = "rightEyelid";
+            headGroup.add(rightEyelid);
+            
+            // الحواجب
+            const browGeo = new THREE.BoxGeometry(0.25, 0.05, 0.08);
+            
+            const leftBrow = new THREE.Mesh(browGeo, browMat);
+            leftBrow.position.set(-0.2, 0.28, 0.46);
+            leftBrow.rotation.z = 0.15;
+            leftBrow.name = "leftBrow";
+            headGroup.add(leftBrow);
+            
+            const rightBrow = new THREE.Mesh(browGeo, browMat);
+            rightBrow.position.set(0.2, 0.28, 0.46);
+            rightBrow.rotation.z = -0.15;
+            rightBrow.name = "rightBrow";
+            headGroup.add(rightBrow);
+            
+            // ==================== الأنف ====================
+            const noseGroup = new THREE.Group();
+            noseGroup.name = "noseGroup";
+            
+            // جسر الأنف
+            const noseBridgeGeo = new THREE.BoxGeometry(0.12, 0.35, 0.15);
+            const noseBridge = new THREE.Mesh(noseBridgeGeo, skinMat);
+            noseBridge.position.set(0, 0.05, 0.38);
+            noseBridge.name = "noseBridge";
+            headGroup.add(noseBridge);
+            
+            // طرف الأنف
+            const noseTipGeo = new THREE.SphereGeometry(0.1, 16, 16);
+            noseTipGeo.scale(0.8, 0.7, 0.8);
+            const noseTip = new THREE.Mesh(noseTipGeo, skinMat);
+            noseTip.position.set(0, -0.05, 0.48);
+            noseTip.name = "noseTip";
+            headGroup.add(noseTip);
+            
+            // فتحات الأنف
+            const nostrilGeo = new THREE.SphereGeometry(0.04, 8, 8);
+            nostrilGeo.scale(0.7, 0.5, 0.5);
+            const nostrilMat = new THREE.MeshStandardMaterial({ 
+                color: 0xd4886b, 
+                roughness: 0.7 
+            });
+            
+            const leftNostril = new THREE.Mesh(nostrilGeo, nostrilMat);
+            leftNostril.position.set(-0.05, -0.09, 0.52);
+            leftNostril.name = "leftNostril";
+            headGroup.add(leftNostril);
+            
+            const rightNostril = new THREE.Mesh(nostrilGeo, nostrilMat);
+            rightNostril.position.set(0.05, -0.09, 0.52);
+            rightNostril.name = "rightNostril";
+            headGroup.add(rightNostril);
+            
+            // ==================== الفم ====================
+            // الشفة العلوية
+            const upperLipGeo = new THREE.BoxGeometry(0.18, 0.05, 0.08);
+            const upperLip = new THREE.Mesh(upperLipGeo, lipMat);
+            upperLip.position.set(0, -0.18, 0.47);
+            upperLip.name = "upperLip";
+            headGroup.add(upperLip);
+            
+            // الشفة السفلية
+            const lowerLipGeo = new THREE.BoxGeometry(0.16, 0.05, 0.07);
+            const lowerLip = new THREE.Mesh(lowerLipGeo, lipMat);
+            lowerLip.position.set(0, -0.24, 0.46);
+            lowerLip.name = "lowerLip";
+            headGroup.add(lowerLip);
+            
+            // خط الفم
+            const mouthLineGeo = new THREE.BoxGeometry(0.14, 0.02, 0.02);
+            const mouthLine = new THREE.Mesh(mouthLineGeo, mouthMat);
+            mouthLine.position.set(0, -0.21, 0.48);
+            mouthLine.name = "mouthLine";
+            headGroup.add(mouthLine);
+            
+            // الذقن
+            const chinGeo = new THREE.SphereGeometry(0.15, 16, 16);
+            chinGeo.scale(0.6, 0.4, 0.5);
+            const chin = new THREE.Mesh(chinGeo, skinMat);
+            chin.position.set(0, -0.45, 0.3);
+            chin.name = "chin";
+            headGroup.add(chin);
+            
+            // ==================== الشعر ====================
+            const hairGroup = new THREE.Group();
+            hairGroup.name = "hairGroup";
+            hairGroup.position.y = 0.15;
+            
+            // شعر قصير
+            const shortHairGeo = new THREE.SphereGeometry(0.54, 24, 24);
+            shortHairGeo.scale(1.0, 0.45, 1.0);
+            const shortHair = new THREE.Mesh(shortHairGeo, hairMat);
+            shortHair.position.y = 0.3;
+            shortHair.name = "shortHair";
+            shortHair.castShadow = !isGhost;
+            hairGroup.add(shortHair);
+            
+            // شعر طويل
+            const longHairGeo = new THREE.SphereGeometry(0.55, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.7);
+            const longHair = new THREE.Mesh(longHairGeo, hairMat);
+            longHair.position.y = 0.25;
+            longHair.position.z = -0.1;
+            longHair.scale.set(1.0, 1.3, 1.0);
+            longHair.name = "longHair";
+            longHair.castShadow = !isGhost;
+            hairGroup.add(longHair);
+            
+            // شعر سبايكي
+            const spikyGroup = new THREE.Group();
+            spikyGroup.name = "spikyGroup";
+            for (let i = 0; i < 8; i++) {
+                const spikeGeo = new THREE.ConeGeometry(0.08, 0.35, 8);
+                const spike = new THREE.Mesh(spikeGeo, hairMat);
+                spike.position.set(
+                    Math.sin(i * Math.PI / 4) * 0.3,
+                    0.45,
+                    Math.cos(i * Math.PI / 4) * 0.2
+                );
+                spike.rotation.x = Math.random() * 0.5 - 0.25;
+                spike.rotation.z = Math.random() * 0.5 - 0.25;
+                spike.castShadow = !isGhost;
+                spikyGroup.add(spike);
+            }
+            hairGroup.add(spikyGroup);
+            
+            // شعر مجعد
+            const curlyGroup = new THREE.Group();
+            curlyGroup.name = "curlyGroup";
+            for (let i = 0; i < 12; i++) {
+                const curlGeo = new THREE.SphereGeometry(0.1, 12, 12);
+                const curl = new THREE.Mesh(curlGeo, hairMat);
+                curl.position.set(
+                    Math.sin(i * Math.PI / 6) * 0.35,
+                    0.35 + Math.random() * 0.2,
+                    Math.cos(i * Math.PI / 6) * 0.25
+                );
+                curl.castShadow = !isGhost;
+                curlyGroup.add(curl);
+            }
+            hairGroup.add(curlyGroup);
+            
+            // موهوك
+            const mohawkGeo = new THREE.BoxGeometry(0.15, 0.5, 0.6);
+            const mohawk = new THREE.Mesh(mohawkGeo, hairMat);
+            mohawk.position.set(0, 0.6, 0);
+            mohawk.name = "mohawk";
+            mohawk.castShadow = !isGhost;
+            hairGroup.add(mohawk);
+            
+            headGroup.add(hairGroup);
+            group.add(headGroup);
+            
+        // ==================== الجسم ====================
+        const bodyGroup = new THREE.Group();
+        bodyGroup.name = "bodyGroup";
+        bodyGroup.position.y = 1.3;
+        
+        const isGirl = customizations.gender === 'girl';
+        
+        // الجذع
+        const torsoGeo = new THREE.CylinderGeometry(0.4, 0.5, 1.5, 16);
+        if (isGirl) {
+            torsoGeo.scale(0.9, 0.95, 0.85);
+        } else {
+            torsoGeo.scale(1.1, 1.0, 0.9);
+        }
+        const torso = new THREE.Mesh(torsoGeo, clothesMat);
+        torso.position.y = 0.75;
+        torso.name = "torso";
+        torso.castShadow = !isGhost;
+        bodyGroup.add(torso);
+        
+        // الصدر
+        const chestGeo = new THREE.SphereGeometry(0.45, 16, 16);
+        if (isGirl) {
+            chestGeo.scale(0.95, 0.55, 0.85);
+        } else {
+            chestGeo.scale(1.0, 0.5, 0.8);
+        }
+        const chest = new THREE.Mesh(chestGeo, clothesMat);
+        chest.position.set(0, 1.0, 0.1);
+        chest.name = "chest";
+        bodyGroup.add(chest);
+        
+        // الكتفين
+        const shoulderGeo = new THREE.SphereGeometry(0.2, 12, 12);
+        
+        const leftShoulder = new THREE.Mesh(shoulderGeo, clothesMat);
+        if (isGirl) {
+            leftShoulder.position.set(-0.42, 1.4, 0);
+        } else {
+            leftShoulder.position.set(-0.5, 1.4, 0);
+        }
+        leftShoulder.name = "leftShoulder";
+        bodyGroup.add(leftShoulder);
+        
+        const rightShoulder = new THREE.Mesh(shoulderGeo, clothesMat);
+        if (isGirl) {
+            rightShoulder.position.set(0.42, 1.4, 0);
+        } else {
+            rightShoulder.position.set(0.5, 1.4, 0);
+        }
+        rightShoulder.name = "rightShoulder";
+        bodyGroup.add(rightShoulder);
+        
+        // الحوض
+        const pelvisGeo = new THREE.CylinderGeometry(0.4, 0.45, 0.5, 12);
+        if (isGirl) {
+            pelvisGeo.scale(1.1, 1.0, 1.05);
+        }
+        const pelvis = new THREE.Mesh(pelvisGeo, pantsMat);
+        pelvis.position.y = 0.1;
+        pelvis.name = "pelvis";
+        bodyGroup.add(pelvis);
+        
+        group.add(bodyGroup);
+            
+        // ==================== الأذرع ====================
+        function createRealisticArm(side) {
+            const armGroup = new THREE.Group();
+            const sideMult = side === 'left' ? -1 : 1;
+            armGroup.name = side + "ArmGroup";
+            armGroup.position.set(sideMult * 0.5, 2.6, 0);
+            
+            // الكتف - كرة متصلة بالجسم
+            const shoulderGeo = new THREE.SphereGeometry(0.18, 16, 16);
+            shoulderGeo.scale(0.9, 0.8, 0.9);
+            const shoulder = new THREE.Mesh(shoulderGeo, clothesMat);
+            shoulder.position.y = 0.05;
+            shoulder.name = side + "Shoulder";
+            shoulder.castShadow = !isGhost;
+            armGroup.add(shoulder);
+            
+            // العضد - يبدأ من الكتف مباشرة
+            const upperArmGeo = new THREE.CylinderGeometry(0.13, 0.15, 0.7, 16);
+            upperArmGeo.translate(0, -0.35, 0);
+            const upperArm = new THREE.Mesh(upperArmGeo, clothesMat);
+            upperArm.position.y = -0.35;
+            upperArm.name = side + "UpperArm";
+            upperArm.castShadow = !isGhost;
+            armGroup.add(upperArm);
+            
+            // المرفق
+            const elbowGeo = new THREE.SphereGeometry(0.12, 12, 12);
+            const elbow = new THREE.Mesh(elbowGeo, clothesMat);
+            elbow.position.y = -0.7;
+            elbow.name = side + "Elbow";
+            elbow.castShadow = !isGhost;
+            armGroup.add(elbow);
+            
+            // الساعد
+            const forearmGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.6, 12);
+            forearmGeo.translate(0, -0.3, 0);
+            const forearm = new THREE.Mesh(forearmGeo, skinMat);
+            forearm.position.y = -1.0;
+            forearm.name = side + "Forearm";
+            forearm.castShadow = !isGhost;
+            armGroup.add(forearm);
+            
+            // المعصم
+            const wristGeo = new THREE.SphereGeometry(0.08, 10, 10);
+            const wrist = new THREE.Mesh(wristGeo, skinMat);
+            wrist.position.y = -1.3;
+            wrist.name = side + "Wrist";
+            armGroup.add(wrist);
+            
+            // اليد
+            const handGeo = new THREE.SphereGeometry(0.09, 12, 12);
+            handGeo.scale(0.8, 1.3, 0.7);
+            const hand = new THREE.Mesh(handGeo, skinMat);
+            hand.position.y = -1.4;
+            hand.name = side + "Hand";
+            hand.castShadow = !isGhost;
+            armGroup.add(hand);
+            
+            // الأصابع
+            const fingerPositions = [-0.06, -0.03, 0, 0.03, 0.06];
+            fingerPositions.forEach((xPos, i) => {
+                const fingerGeo = new THREE.CylinderGeometry(0.02, 0.018, 0.1, 8);
+                const finger = new THREE.Mesh(fingerGeo, skinMat);
+                finger.position.set(xPos, -1.48, 0.04);
+                finger.name = side + "Finger" + i;
+                armGroup.add(finger);
+            });
+            
+            // الإبهام
+            const thumbGeo = new THREE.CylinderGeometry(0.022, 0.02, 0.08, 8);
+            const thumb = new THREE.Mesh(thumbGeo, skinMat);
+            thumb.position.set(sideMult * 0.06, -1.42, 0.06);
+            thumb.rotation.z = sideMult * 0.5;
+            thumb.name = side + "Thumb";
+            armGroup.add(thumb);
+            
+            return armGroup;
+        }
+        
+        const leftArm = createRealisticArm('left');
+        const rightArm = createRealisticArm('right');
+        group.add(leftArm);
+        group.add(rightArm);
+            
+        // ==================== الأرجل ====================
+        function createRealisticLeg(side) {
+            const legGroup = new THREE.Group();
+            const sideMult = side === 'left' ? -1 : 1;
+            legGroup.name = side + "LegGroup";
+            legGroup.position.set(sideMult * 0.22, 0.95, 0);
+            
+            // الورك
+            const hipGeo = new THREE.SphereGeometry(0.17, 12, 12);
+            hipGeo.scale(0.9, 0.7, 0.9);
+            const hip = new THREE.Mesh(hipGeo, pantsMat);
+            hip.position.y = 0.05;
+            hip.name = side + "Hip";
+            hip.castShadow = !isGhost;
+            legGroup.add(hip);
+            
+            // الفخذ
+            const thighGeo = new THREE.CylinderGeometry(0.18, 0.14, 0.7, 12);
+            thighGeo.translate(0, -0.35, 0);
+            const thigh = new THREE.Mesh(thighGeo, pantsMat);
+            thigh.position.y = -0.35;
+            thigh.name = side + "Thigh";
+            thigh.castShadow = !isGhost;
+            legGroup.add(thigh);
+            
+            // الركبة
+            const kneeGeo = new THREE.SphereGeometry(0.13, 12, 12);
+            const knee = new THREE.Mesh(kneeGeo, pantsMat);
+            knee.position.y = -0.7;
+            knee.name = side + "Knee";
+            knee.castShadow = !isGhost;
+            legGroup.add(knee);
+            
+            // الساق
+            const shinGeo = new THREE.CylinderGeometry(0.12, 0.08, 0.6, 12);
+            shinGeo.translate(0, -0.3, 0);
+            const shin = new THREE.Mesh(shinGeo, pantsMat);
+            shin.position.y = -1.0;
+            shin.name = side + "Shin";
+            shin.castShadow = !isGhost;
+            legGroup.add(shin);
+            
+            // الكاحل
+            const ankleGeo = new THREE.SphereGeometry(0.09, 10, 10);
+            const ankle = new THREE.Mesh(ankleGeo, skinMat);
+            ankle.position.y = -1.3;
+            ankle.name = side + "Ankle";
+            ankle.castShadow = !isGhost;
+            legGroup.add(ankle);
+            
+            // الحذاء الرياضي
+            const shoeGeo = new THREE.BoxGeometry(0.22, 0.15, 0.5);
+            const shoe = new THREE.Mesh(shoeGeo, shoeMat);
+            shoe.position.set(0, -1.38, 0.05);
+            shoe.name = side + "Shoe";
+            shoe.castShadow = !isGhost;
+            legGroup.add(shoe);
+            
+            // مقدمة الحذاء
+            const shoeToeGeo = new THREE.SphereGeometry(0.13, 10, 10);
+            shoeToeGeo.scale(1.0, 0.6, 1.5);
+            const shoeToe = new THREE.Mesh(shoeToeGeo, shoeMat);
+            shoeToe.position.set(0, -1.38, 0.25);
+            shoeToe.name = side + "ShoeToe";
+            shoeToe.castShadow = !isGhost;
+            legGroup.add(shoeToe);
+            
+            // نعل الحذاء
+            const soleGeo = new THREE.BoxGeometry(0.24, 0.08, 0.55);
+            const soleMat = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff, 
+                roughness: 0.8 
+            });
+            const sole = new THREE.Mesh(soleGeo, soleMat);
+            sole.position.set(0, -1.48, 0.05);
+            sole.name = side + "Sole";
+            sole.castShadow = !isGhost;
+            legGroup.add(sole);
+            
+            return legGroup;
+        }
+        
+        const leftLeg = createRealisticLeg('left');
+        const rightLeg = createRealisticLeg('right');
+        group.add(leftLeg);
+        group.add(rightLeg);
+            
+            // ==================== تأثير الشبح ====================
+            if (isGhost) {
+                group.traverse(c => {
+                    if (c.isMesh && c.material) {
+                        c.material = c.material.clone();
+                        c.material.transparent = true;
+                        c.material.opacity = 0.5;
+                        c.castShadow = false;
+                    }
+                });
+            }
+            
+            return group;
+        }
+
+        // ==================== تحديث مظهر الشخصية ====================
+        function updateCharacterVisuals() {
+            const p = playerGroup;
+            const skinColor = new THREE.Color(customizations.skin);
+            const hairColor = new THREE.Color(customizations.hair);
+            const clothesColor = new THREE.Color(customizations.clothes);
+            
+            // تحديث لون البشرة
+            p.getObjectByName("skull").material.color.set(skinColor);
+            p.getObjectByName("jaw").material.color.set(skinColor);
+            p.getObjectByName("leftEar").material.color.set(skinColor);
+            p.getObjectByName("rightEar").material.color.set(skinColor);
+            p.getObjectByName("leftSocket").material.color.set(skinColor);
+            p.getObjectByName("rightSocket").material.color.set(skinColor);
+            p.getObjectByName("leftEyelid").material.color.set(skinColor);
+            p.getObjectByName("rightEyelid").material.color.set(skinColor);
+            p.getObjectByName("noseBridge").material.color.set(skinColor);
+            p.getObjectByName("noseTip").material.color.set(skinColor);
+            p.getObjectByName("chin").material.color.set(skinColor);
+            p.getObjectByName("leftForearm").material.color.set(skinColor);
+            p.getObjectByName("rightForearm").material.color.set(skinColor);
+            p.getObjectByName("leftHand").material.color.set(skinColor);
+            p.getObjectByName("rightHand").material.color.set(skinColor);
+            p.getObjectByName("leftAnkle").material.color.set(skinColor);
+            p.getObjectByName("rightAnkle").material.color.set(skinColor);
+            
+            // تحديث لون الشعر
+            p.getObjectByName("shortHair").material.color.set(hairColor);
+            p.getObjectByName("longHair").material.color.set(hairColor);
+            if (p.getObjectByName("spikyGroup")) {
+                p.getObjectByName("spikyGroup").children.forEach(c => c.material.color.set(hairColor));
+            }
+            if (p.getObjectByName("curlyGroup")) {
+                p.getObjectByName("curlyGroup").children.forEach(c => c.material.color.set(hairColor));
+            }
+            p.getObjectByName("mohawk").material.color.set(hairColor);
+            p.getObjectByName("leftBrow").material.color.set(hairColor);
+            p.getObjectByName("rightBrow").material.color.set(hairColor);
+            
+            // تحديث لون الملابس
+            p.getObjectByName("torso").material.color.set(clothesColor);
+            p.getObjectByName("chest").material.color.set(clothesColor);
+            p.getObjectByName("leftShoulder").material.color.set(clothesColor);
+            p.getObjectByName("rightShoulder").material.color.set(clothesColor);
+            p.getObjectByName("leftUpperArm").material.color.set(clothesColor);
+            p.getObjectByName("rightUpperArm").material.color.set(clothesColor);
+            p.getObjectByName("leftElbow").material.color.set(clothesColor);
+            p.getObjectByName("rightElbow").material.color.set(clothesColor);
+            
+            // إخفاء كل أنواع الشعر
+            p.getObjectByName("shortHair").visible = false;
+            p.getObjectByName("longHair").visible = false;
+            p.getObjectByName("spikyGroup").visible = false;
+            p.getObjectByName("curlyGroup").visible = false;
+            p.getObjectByName("mohawk").visible = false;
+            
+            // إظهار نوع الشعر المناسب
+            if(customizations.hairStyle === 'short') {
+                p.getObjectByName("shortHair").visible = true;
+            } else if(customizations.hairStyle === 'long') {
+                p.getObjectByName("longHair").visible = true;
+            } else if(customizations.hairStyle === 'spiky') {
+                p.getObjectByName("spikyGroup").visible = true;
+                p.getObjectByName("shortHair").visible = true;
+            } else if(customizations.hairStyle === 'curly') {
+                p.getObjectByName("curlyGroup").visible = true;
+            } else if(customizations.hairStyle === 'mohawk') {
+                p.getObjectByName("mohawk").visible = true;
+            }
+            // bald = لا شعر
+            
+            // تحديث ملامح الوجه حسب العرق
+            const leftIris = p.getObjectByName("leftIris");
+            const rightIris = p.getObjectByName("rightIris");
+            const leftEyeWhite = p.getObjectByName("leftEyeWhite");
+            const rightEyeWhite = p.getObjectByName("rightEyeWhite");
+            const leftEyelid = p.getObjectByName("leftEyelid");
+            const rightEyelid = p.getObjectByName("rightEyelid");
+            const noseBridge = p.getObjectByName("noseBridge");
+            const noseTip = p.getObjectByName("noseTip");
+            const upperLip = p.getObjectByName("upperLip");
+            const lowerLip = p.getObjectByName("lowerLip");
+            
+            if (customizations.face === 'arab') {
+                // عربي: عيون داكنة واسعة، أنف متوسط
+                leftIris.material.color.setHex(0x2b1b00);
+                rightIris.material.color.setHex(0x2b1b00);
+                leftEyeWhite.scale.set(1.2, 1.1, 1);
+                rightEyeWhite.scale.set(1.2, 1.1, 1);
+                leftEyelid.scale.y = 0.35;
+                rightEyelid.scale.y = 0.35;
+                noseBridge.scale.set(1, 1, 1);
+                noseTip.scale.set(1, 1, 1);
+                upperLip.scale.set(1, 1, 1);
+                lowerLip.scale.set(1, 1, 1);
+            } else if (customizations.face === 'asian') {
+                // آسيوي: عيون أضيق، أنف صغير
+                leftIris.material.color.setHex(0x1a1a00);
+                rightIris.material.color.setHex(0x1a1a00);
+                leftEyeWhite.scale.set(0.9, 0.5, 1);
+                rightEyeWhite.scale.set(0.9, 0.5, 1);
+                leftEyelid.scale.y = 0.2;
+                rightEyelid.scale.y = 0.2;
+                noseBridge.scale.set(0.8, 0.7, 0.8);
+                noseTip.scale.set(0.7, 0.7, 0.7);
+                upperLip.scale.set(0.8, 1, 0.8);
+                lowerLip.scale.set(0.8, 1, 0.8);
+            } else if (customizations.face === 'euro') {
+                // أوروبي: عيون ملونة، أنف أبرز
+                leftIris.material.color.setHex(0x0055ff);
+                rightIris.material.color.setHex(0x0055ff);
+                leftEyeWhite.scale.set(1.1, 0.9, 1);
+                rightEyeWhite.scale.set(1.1, 0.9, 1);
+                leftEyelid.scale.y = 0.4;
+                rightEyelid.scale.y = 0.4;
+                noseBridge.scale.set(1.2, 1.3, 1.1);
+                noseTip.scale.set(1.2, 1.2, 1.2);
+                upperLip.scale.set(0.9, 0.8, 0.9);
+                lowerLip.scale.set(0.9, 0.8, 0.9);
+            } else if (customizations.face === 'african') {
+                // أفريقي: عيون كبيرة داكنة، أنف أعرض، شفاه أسمك
+                leftIris.material.color.setHex(0x000000);
+                rightIris.material.color.setHex(0x000000);
+                leftEyeWhite.scale.set(1.4, 1.3, 1);
+                rightEyeWhite.scale.set(1.4, 1.3, 1);
+                leftEyelid.scale.y = 0.5;
+                rightEyelid.scale.y = 0.5;
+                noseBridge.scale.set(1.3, 1.0, 1.3);
+                noseTip.scale.set(1.4, 1.2, 1.4);
+                upperLip.scale.set(1.3, 1.4, 1.2);
+                lowerLip.scale.set(1.4, 1.4, 1.3);
+            } else if (customizations.face === 'latino') {
+                // لاتيني: عيون بنية، أنف متوسط
+                leftIris.material.color.setHex(0x3b1b00);
+                rightIris.material.color.setHex(0x3b1b00);
+                leftEyeWhite.scale.set(1.1, 1.0, 1);
+                rightEyeWhite.scale.set(1.1, 1.0, 1);
+                leftEyelid.scale.y = 0.38;
+                rightEyelid.scale.y = 0.38;
+                noseBridge.scale.set(1.1, 1.1, 1.0);
+                noseTip.scale.set(1.0, 1.0, 1.0);
+                upperLip.scale.set(1.1, 1.1, 1.0);
+                lowerLip.scale.set(1.1, 1.1, 1.0);
+            }
+        }
+
+        // ==================== إنشاء المشهد ====================
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x5ca2e8); // سماء واقعية زرقاء فاتحة
-        scene.fog = new THREE.Fog(0x5ca2e8, 50, 220); // ضباب مطابق للون السماء
+        scene.background = new THREE.Color(0x5ca2e8);
+        scene.fog = new THREE.Fog(0x5ca2e8, 50, 220);
 
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 300);
         camera.position.set(0, 7, 12);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // لتفعيل الـ 120 فريم بحسب الشاشة
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // ظلال عالية الدقة
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.getElementById('game-container').appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // إضاءة محيطية
+        // الإضاءة
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        const sunLight = new THREE.DirectionalLight(0xffeedd, 1.2); // لون الشمس الواقعي
+        
+        const sunLight = new THREE.DirectionalLight(0xffeedd, 1.2);
         sunLight.position.set(-20, 40, 15);
         sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 1024;
-        sunLight.shadow.mapSize.height = 1024;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
         sunLight.shadow.camera.near = 0.5;
         sunLight.shadow.camera.far = 200;
         sunLight.shadow.camera.left = -40;
@@ -753,20 +2135,21 @@
         sunLight.shadow.camera.bottom = -40;
         scene.add(sunLight);
 
-        // أرضية عشبية (لون طبيعي)
+        // أرضية
         const groundGeo = new THREE.PlaneGeometry(150, 800);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d4c1e, roughness: 1.0, metalness: 0.0 });
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x2d4c1e, roughness: 1.0 });
         const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.position.z = -250;
         ground.receiveShadow = true;
         scene.add(ground);
 
-        // سكة القطار مع حصى
+        // سكة القطار
         const laneWidth = 3.6;
         const lanesX = [-laneWidth, 0, laneWidth];
+        
         const gravelGeo = new THREE.PlaneGeometry(3.8, 800);
-        const gravelMat = new THREE.MeshStandardMaterial({ color: 0x5a5a5a, roughness: 1.0, metalness: 0.1 });
+        const gravelMat = new THREE.MeshStandardMaterial({ color: 0x5a5a5a, roughness: 1.0 });
         lanesX.forEach(x => {
             const g = new THREE.Mesh(gravelGeo, gravelMat);
             g.rotation.x = -Math.PI / 2;
@@ -775,7 +2158,6 @@
             scene.add(g);
         });
 
-        // قضبان السكة
         const railGeo = new THREE.BoxGeometry(0.15, 0.2, 800);
         const railMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
         lanesX.forEach(x => {
@@ -788,9 +2170,10 @@
             });
         });
 
+        // العوارض الخشبية
         const sleepersGroup = new THREE.Group();
         const sleeperGeo = new THREE.BoxGeometry(3.2, 0.12, 0.5);
-        const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x4a2e15, roughness: 0.9, metalness: 0.0 });
+        const sleeperMat = new THREE.MeshStandardMaterial({ color: 0x4a2e15, roughness: 0.9 });
         for (let i = 0; i < 60; i++) {
             lanesX.forEach(x => {
                 const s = new THREE.Mesh(sleeperGeo, sleeperMat);
@@ -802,34 +2185,86 @@
         }
         scene.add(sleepersGroup);
 
-        // ================== قطارات، حواجز ومنازل ==================
+        // الأسوار
+        const fenceGroup = new THREE.Group();
+        const fencePostGeo = new THREE.CylinderGeometry(0.08, 0.1, 1.0, 6);
+        const fencePostMat = new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8 });
+        const fenceRailGeo = new THREE.BoxGeometry(0.06, 0.08, 4);
+        const fenceRailMat = new THREE.MeshStandardMaterial({ color: 0xA0522D, roughness: 0.7 });
+        
+        [-4.5, 4.5].forEach(sideX => {
+            for (let i = 0; i < 60; i++) {
+                const post = new THREE.Mesh(fencePostGeo, fencePostMat);
+                post.position.set(sideX, 0.5, -i * 4);
+                post.castShadow = true;
+                post.receiveShadow = true;
+                fenceGroup.add(post);
+                
+                if (i < 59) {
+                    const railTop = new THREE.Mesh(fenceRailGeo, fenceRailMat);
+                    railTop.position.set(sideX, 0.8, -i * 4 - 2);
+                    fenceGroup.add(railTop);
+                    
+                    const railBottom = new THREE.Mesh(fenceRailGeo, fenceRailMat);
+                    railBottom.position.set(sideX, 0.4, -i * 4 - 2);
+                    fenceGroup.add(railBottom);
+                }
+            }
+        });
+        scene.add(fenceGroup);
+
+        // ==================== القطارات ====================
         function createRealisticTrain(colorHex = 0xff3300) {
             const group = new THREE.Group();
-            const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.4, roughness: 0.3 });
+            const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.5, roughness: 0.3 });
             const darkMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.6, roughness: 0.2 });
-            const windowMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, emissive: 0x334455, emissiveIntensity: 0.6, metalness: 0.1, roughness: 0.1 });
+            const windowMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, emissive: 0x334455, emissiveIntensity: 0.6 });
             const lightMat = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 1.2 });
             
-            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.2, 28), bodyMat);
-            mainBody.position.y = 1.6; mainBody.castShadow = true; mainBody.receiveShadow = true;
+            const mainBody = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.0, 35), bodyMat);
+            mainBody.position.y = 1.5;
+            mainBody.castShadow = true;
+            mainBody.receiveShadow = true;
             group.add(mainBody);
             
-            const noseGeo = new THREE.CylinderGeometry(0.8, 1.4, 3, 8);
+            const noseGeo = new THREE.CylinderGeometry(0.6, 1.4, 4, 12);
             const nose = new THREE.Mesh(noseGeo, bodyMat);
-            nose.rotation.x = Math.PI / 2; nose.position.set(0, 2.0, -15.5); nose.castShadow = true;
+            nose.rotation.x = Math.PI / 2;
+            nose.position.set(0, 2.0, -19.5);
+            nose.castShadow = true;
             group.add(nose);
             
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 6; i++) {
                 const winGeo = new THREE.BoxGeometry(0.7, 0.8, 0.1);
-                const win = new THREE.Mesh(winGeo, windowMat); win.position.set(0.8, 2.8, -8 + i * 5); group.add(win);
-                const win2 = new THREE.Mesh(winGeo, windowMat); win2.position.set(-0.8, 2.8, -8 + i * 5); group.add(win2);
+                const win = new THREE.Mesh(winGeo, windowMat);
+                win.position.set(0.8, 2.5, -12 + i * 5);
+                group.add(win);
+                const win2 = new THREE.Mesh(winGeo, windowMat);
+                win2.position.set(-0.8, 2.5, -12 + i * 5);
+                group.add(win2);
             }
             
             const headlight1 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16), lightMat);
-            headlight1.rotation.x = Math.PI / 2; headlight1.position.set(0.6, 1.2, -15.8); group.add(headlight1);
+            headlight1.rotation.x = Math.PI / 2;
+            headlight1.position.set(0.6, 1.2, -19.8);
+            group.add(headlight1);
             const headlight2 = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16), lightMat);
-            headlight2.rotation.x = Math.PI / 2; headlight2.position.set(-0.6, 1.2, -15.8); group.add(headlight2);
-
+            headlight2.rotation.x = Math.PI / 2;
+            headlight2.position.set(-0.6, 1.2, -19.8);
+            group.add(headlight2);
+            
+            const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.2, 12);
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7, roughness: 0.3 });
+            for (let i = 0; i < 8; i++) {
+                const wheelL = new THREE.Mesh(wheelGeo, wheelMat);
+                wheelL.rotation.z = Math.PI / 2;
+                wheelL.position.set(-1.2, 0.4, -14 + i * 4);
+                group.add(wheelL);
+                const wheelR = new THREE.Mesh(wheelGeo, wheelMat);
+                wheelR.rotation.z = Math.PI / 2;
+                wheelR.position.set(1.2, 0.4, -14 + i * 4);
+                group.add(wheelR);
+            }
             return group;
         }
 
@@ -837,11 +2272,23 @@
             const group = new THREE.Group();
             const poleMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.3, roughness: 0.5 });
             const signMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0x330000, roughness: 0.2 });
-
-            const poleL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat); poleL.position.set(-1.3, 1.25, 0); poleL.castShadow = true; group.add(poleL);
-            const poleR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat); poleR.position.set(1.3, 1.25, 0); poleR.castShadow = true; group.add(poleR);
-            const topBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.4, 0.4), poleMat); topBar.position.y = 2.6; topBar.castShadow = true; group.add(topBar);
-            const sign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.15), signMat); sign.position.set(0, 3.1, 0); sign.castShadow = true; group.add(sign);
+            
+            const poleL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat);
+            poleL.position.set(-1.3, 1.25, 0);
+            poleL.castShadow = true;
+            group.add(poleL);
+            const poleR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.5, 8), poleMat);
+            poleR.position.set(1.3, 1.25, 0);
+            poleR.castShadow = true;
+            group.add(poleR);
+            const topBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.4, 0.4), poleMat);
+            topBar.position.y = 2.6;
+            topBar.castShadow = true;
+            group.add(topBar);
+            const sign = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.15), signMat);
+            sign.position.set(0, 3.1, 0);
+            sign.castShadow = true;
+            group.add(sign);
             return group;
         }
 
@@ -849,364 +2296,559 @@
             const group = new THREE.Group();
             const wallMat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.9 });
             const roofMat = new THREE.MeshStandardMaterial({ color: 0x6b3611, roughness: 0.8 });
+            const windowMat = new THREE.MeshStandardMaterial({ color: 0xaaddff, emissive: 0x334455, emissiveIntensity: 0.4 });
             
-            const body = new THREE.Mesh(new THREE.BoxGeometry(4, 10, 5), wallMat); body.position.y = 5; body.castShadow = true; body.receiveShadow = true; group.add(body);
-            const roofGeo = new THREE.ConeGeometry(4, 4, 4);
-            const roof = new THREE.Mesh(roofGeo, roofMat); roof.position.y = 12; roof.rotation.y = Math.PI / 4; roof.castShadow = true; roof.receiveShadow = true; group.add(roof);
+            const body = new THREE.Mesh(new THREE.BoxGeometry(8, 8, 6), wallMat);
+            body.position.y = 4;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+            
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(6, 3, 4), roofMat);
+            roof.position.y = 9.5;
+            roof.rotation.y = Math.PI / 4;
+            roof.castShadow = true;
+            roof.receiveShadow = true;
+            group.add(roof);
+            
+            for (let i = -1; i <= 1; i++) {
+                const win = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.2), windowMat);
+                win.position.set(i * 2.5, 5, 3.1);
+                group.add(win);
+            }
+            
+            const door = new THREE.Mesh(new THREE.BoxGeometry(1.5, 3, 0.2), new THREE.MeshStandardMaterial({ color: 0x4a2e15, roughness: 0.7 }));
+            door.position.set(0, 1.5, 3.1);
+            group.add(door);
             return group;
         }
 
-        // ================== الشخصية وملابسها الواقعية ==================
-        function createCharacter(isGhost = false) {
-            const group = new THREE.Group();
-
-            const skinMat = new THREE.MeshStandardMaterial({ color: customizations.skin, roughness: 0.6 });
-            const clothesMat = new THREE.MeshStandardMaterial({ color: customizations.clothes, roughness: 0.8 });
-            const hairMat = new THREE.MeshStandardMaterial({ color: customizations.hair, roughness: 0.9 });
-            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.8 });
-            const shoeMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 });
-
-            // الرأس
-            const headGroup = new THREE.Group(); headGroup.name = "headGroup"; headGroup.position.y = 2.7;
-            const skullGeo = new THREE.SphereGeometry(0.48, 16, 16); skullGeo.scale(1, 1.05, 0.95);
-            const skull = new THREE.Mesh(skullGeo, skinMat); skull.name = "skull"; skull.castShadow = !isGhost; headGroup.add(skull);
-
-            // الشعر بستايلات مختلفة
-            const hairGroup = new THREE.Group(); hairGroup.name = "hairGroup";
-            
-            // 1. شعر القاعدة (أساس)
-            const hairBaseGeo = new THREE.SphereGeometry(0.5, 16, 16); hairBaseGeo.scale(1, 0.4, 1.05);
-            const hairBase = new THREE.Mesh(hairBaseGeo, hairMat); hairBase.position.y = 0.35; hairBase.name = "hairBase"; hairBase.castShadow = !isGhost; hairGroup.add(hairBase);
-            
-            // 2. شعر طويل بنات (Pony)
-            const hairPonyGeo = new THREE.BoxGeometry(0.75, 1.4, 0.5);
-            const hairPony = new THREE.Mesh(hairPonyGeo, hairMat); hairPony.position.set(0, -0.35, -0.35); hairPony.name = "hairPony"; hairPony.castShadow = !isGhost; hairGroup.add(hairPony);
-            
-            // 3. شعر سبايكي ولادي
-            const hairSpikyGeo = new THREE.ConeGeometry(0.45, 0.5, 8);
-            const hairSpiky = new THREE.Mesh(hairSpikyGeo, hairMat); hairSpiky.position.set(0, 0.5, 0); hairSpiky.name = "hairSpiky"; hairSpiky.castShadow = !isGhost; hairGroup.add(hairSpiky);
-            
-            headGroup.add(hairGroup);
-
-            // العيون
-            const eyeWhiteGeo = new THREE.SphereGeometry(0.1, 8, 8); const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const lEye = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat); lEye.position.set(-0.17, 0.1, 0.42); lEye.name = "lEye"; headGroup.add(lEye);
-            const rEye = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat); rEye.position.set(0.17, 0.1, 0.42); rEye.name = "rEye"; headGroup.add(rEye);
-
-            const pupilGeo = new THREE.SphereGeometry(0.05, 8, 8);
-            const lPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({ color: 0x000000 })); lPupil.position.set(-0.17, 0.1, 0.48); lPupil.name = "lPupil"; headGroup.add(lPupil);
-            const rPupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({ color: 0x000000 })); rPupil.position.set(0.17, 0.1, 0.48); rPupil.name = "rPupil"; headGroup.add(rPupil);
-
-            // الأنف والفم
-            const nose = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 8), skinMat); nose.position.set(0, -0.02, 0.48); nose.rotation.x = Math.PI / 2; nose.name = "nose"; headGroup.add(nose);
-            const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.02), new THREE.MeshBasicMaterial({ color: 0xcc4444 })); mouth.position.set(0, -0.2, 0.47); mouth.name = "mouth"; headGroup.add(mouth);
-
-            group.add(headGroup);
-
-            // الجسم
-            const bodyGeo = new THREE.CylinderGeometry(0.45, 0.5, 1.5, 12);
-            const body = new THREE.Mesh(bodyGeo, clothesMat); body.position.y = 1.35; body.name = "body"; body.castShadow = !isGhost; group.add(body);
-
-            // الأذرع
-            const createArm = (namePrefix, posX) => {
-                const armGroup = new THREE.Group(); armGroup.name = namePrefix + "ArmGroup"; armGroup.position.set(posX, 2.1, 0);
-                const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.8, 8), clothesMat); upper.position.y = -0.4; upper.name = namePrefix + "Sleeve"; upper.castShadow = !isGhost; armGroup.add(upper);
-                const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.7, 8), skinMat); lower.position.y = -1.15; lower.name = namePrefix + "Skin"; lower.castShadow = !isGhost; armGroup.add(lower);
-                return armGroup;
-            }
-            group.add(createArm("l", -0.55));
-            group.add(createArm("r", 0.55));
-
-            // الأقدام
-            const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 1.0, 8), pantsMat); leftLeg.position.set(-0.22, 0.5, 0); leftLeg.name = "lLeg"; leftLeg.castShadow = !isGhost; group.add(leftLeg);
-            const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 1.0, 8), pantsMat); rightLeg.position.set(0.22, 0.5, 0); rightLeg.name = "rLeg"; rightLeg.castShadow = !isGhost; group.add(rightLeg);
-
-            // أحذية
-            const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.45), shoeMat); lShoe.position.set(-0.22, 0.05, 0.08); lShoe.castShadow = !isGhost; group.add(lShoe);
-            const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.45), shoeMat); rShoe.position.set(0.22, 0.05, 0.08); rShoe.castShadow = !isGhost; group.add(rShoe);
-
-            if (isGhost) {
-                group.traverse(c => {
-                    if (c.isMesh && c.material) {
-                        c.material = c.material.clone(); c.material.transparent = true; c.material.opacity = 0.5; c.castShadow = false;
-                    }
-                });
-            }
-            return group;
-        }
-
-        const playerGroup = createCharacter();
+        // ==================== إنشاء اللاعب ====================
+        const playerGroup = createRealisticCharacter();
         scene.add(playerGroup);
-        const opponentGroup = createCharacter(true); opponentGroup.visible = false; scene.add(opponentGroup);
-        playerGroup.rotation.y = 0; let targetRotationY = 0;
+        
+        const opponentGroup = createRealisticCharacter(true);
+        opponentGroup.visible = false;
+        scene.add(opponentGroup);
+        
+        playerGroup.rotation.y = 0;
+        let targetRotationY = 0;
+        
+        updateCharacterVisuals();
 
-        function updateCharacterVisuals() {
-            const p = playerGroup;
-            const isGirl = customizations.gender === 'girl';
-            const skinColor = new THREE.Color(customizations.skin);
-
-            p.getObjectByName("body").material.color.set(customizations.clothes);
-            p.getObjectByName("lSleeve").material.color.set(customizations.clothes);
-            p.getObjectByName("rSleeve").material.color.set(customizations.clothes);
-            
-            // ستايل الملابس (كم طويل أو تيشرت)
-            if(customizations.clothesStyle === 'longsleeve') {
-                p.getObjectByName("lSleeve").scale.y = 1.8; p.getObjectByName("lSleeve").position.y = -0.8;
-                p.getObjectByName("rSleeve").scale.y = 1.8; p.getObjectByName("rSleeve").position.y = -0.8;
-            } else {
-                p.getObjectByName("lSleeve").scale.y = 1.0; p.getObjectByName("lSleeve").position.y = -0.4;
-                p.getObjectByName("rSleeve").scale.y = 1.0; p.getObjectByName("rSleeve").position.y = -0.4;
-            }
-
-            p.getObjectByName("hairBase").material.color.set(customizations.hair);
-            p.getObjectByName("hairPony").material.color.set(customizations.hair);
-            p.getObjectByName("hairSpiky").material.color.set(customizations.hair);
-
-            // ستايل الشعر
-            p.getObjectByName("hairPony").visible = false;
-            p.getObjectByName("hairSpiky").visible = false;
-            if(customizations.hairStyle === 'pony') p.getObjectByName("hairPony").visible = true;
-            if(customizations.hairStyle === 'spiky') p.getObjectByName("hairSpiky").visible = true;
-
-            p.getObjectByName("headGroup").getObjectByName("skull").material.color.set(skinColor);
-            p.getObjectByName("headGroup").getObjectByName("nose").material.color.set(skinColor);
-            p.getObjectByName("lSkin").material.color.set(skinColor);
-            p.getObjectByName("rSkin").material.color.set(skinColor);
-
-            const lPupil = p.getObjectByName("headGroup").getObjectByName("lPupil");
-            const rPupil = p.getObjectByName("headGroup").getObjectByName("rPupil");
-            const lEye = p.getObjectByName("headGroup").getObjectByName("lEye");
-            const rEye = p.getObjectByName("headGroup").getObjectByName("rEye");
-
-            if (customizations.face === 'arab') {
-                lEye.scale.set(1.2, 1.3, 1); rEye.scale.set(1.2, 1.3, 1);
-                lPupil.material.color.setHex(0x2b1b00); rPupil.material.color.setHex(0x2b1b00);
-            } else if (customizations.face === 'asian') {
-                lEye.scale.set(1.1, 0.5, 1); rEye.scale.set(1.1, 0.5, 1);
-                lPupil.material.color.setHex(0x111111); rPupil.material.color.setHex(0x111111);
-            } else if (customizations.face === 'euro') {
-                lEye.scale.set(1, 1, 1); rEye.scale.set(1, 1, 1);
-                lPupil.material.color.setHex(0x0055ff); rPupil.material.color.setHex(0x0055ff);
-            }
-
-            const body = p.getObjectByName("body");
-            const lArm = p.getObjectByName("lArmGroup");
-            const rArm = p.getObjectByName("rArmGroup");
-
-            // تعديل أحجام الجسم لتبين حقيقية حسب الجنس
-            if (isGirl) {
-                body.scale.set(0.85, 0.95, 0.8);
-                lArm.position.set(-0.5, 2.0, 0);
-                rArm.position.set(0.5, 2.0, 0);
-            } else {
-                body.scale.set(1.05, 1.05, 1.0); // جسم أعرض للولد
-                lArm.position.set(-0.6, 2.1, 0);
-                rArm.position.set(0.6, 2.1, 0);
-            }
-        }
-        updateCharacterVisuals(); // تطبيق أولي
-
-        // ================== إعدادات وتوليد اللعب ==================
-        const CONSTANT_SPEED = 0.85; let gameSpeed = 0; let isGameRunning = false;
-        let currentLane = 0; let targetX = 0; let velocityY = 0; let isJumping = false; let isSliding = false;
-        const gravity = -0.028; const jumpStrength = 0.48; let currentGroundY = 0; let runAnimTime = 0;
-
-        const obstacles = []; const coins = []; const houses = [];
+        // ==================== الكائنات ====================
+        const obstacles = [];
+        const coins = [];
+        const houses = [];
+        const powerupsList = [];
+        
         const trainColors = [0xff3300, 0x0055cc, 0x00aa44, 0xff8800];
         for (let i = 0; i < 12; i++) {
             const train = createRealisticTrain(trainColors[i % trainColors.length]);
-            train.position.z = 100; train.userData = { active: false, type: 'train' }; train.visible = false;
-            scene.add(train); obstacles.push(train);
+            train.position.z = 100;
+            train.userData = { active: false, type: 'train' };
+            train.visible = false;
+            scene.add(train);
+            obstacles.push(train);
         }
+        
         for (let i = 0; i < 8; i++) {
-            const barrier = createBarrier(); barrier.position.z = 100; barrier.userData = { active: false, type: 'barrier' }; barrier.visible = false;
-            scene.add(barrier); obstacles.push(barrier);
+            const barrier = createBarrier();
+            barrier.position.z = 100;
+            barrier.userData = { active: false, type: 'barrier' };
+            barrier.visible = false;
+            scene.add(barrier);
+            obstacles.push(barrier);
         }
-        const coinGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.12, 20);
-        const coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1, emissive: 0x553300, emissiveIntensity: 0.3 });
+        
         for (let i = 0; i < 50; i++) {
-            const coin = new THREE.Mesh(coinGeo, coinMat); coin.rotation.x = Math.PI / 2; coin.castShadow = true;
-            coin.position.z = 100; coin.userData = { active: false }; coin.visible = false; scene.add(coin); coins.push(coin);
+            const coin = createShinyCoin();
+            coin.position.z = 100;
+            coin.visible = false;
+            scene.add(coin);
+            coins.push(coin);
         }
+        
         const houseColors = [0xdddddd, 0xffccbb, 0xccddff, 0xfff5cc, 0xe8d5c4, 0xd4e8c4];
-        for (let i = 0; i < 15; i++) {
-            const house = createHouse(houseColors[i % houseColors.length]); house.position.z = 100;
-            house.userData = { active: false }; house.visible = false; scene.add(house); houses.push(house);
+        for (let i = 0; i < 20; i++) {
+            const house = createHouse(houseColors[i % houseColors.length]);
+            house.position.z = 100;
+            house.userData = { active: false };
+            house.visible = false;
+            scene.add(house);
+            houses.push(house);
+        }
+        
+        const powerupTypes = ['magnet', 'jumpBoost', 'speedBoost'];
+        for (let i = 0; i < 9; i++) {
+            const powerup = createRealisticPowerup(powerupTypes[i % 3]);
+            powerup.position.z = 100;
+            powerup.visible = false;
+            scene.add(powerup);
+            powerupsList.push(powerup);
         }
 
-        let obstacleTimer = 0; let coinTimer = 0;
+        // ==================== إعدادات اللعب ====================
+        const CONSTANT_SPEED = 0.85;
+        let gameSpeed = 0;
+        let isGameRunning = false;
+        let currentLane = 0;
+        let targetX = 0;
+        let velocityY = 0;
+        let isJumping = false;
+        let isSliding = false;
+        const gravity = -0.028;
+        const jumpStrength = 0.28;
+        let currentGroundY = 0;
+        let runAnimTime = 0;
+        let obstacleTimer = 0;
+        let coinTimer = 0;
+        let powerupTimer = 0;
+        
+        let rightHitCount = 0;
+        let lastRightHitTime = 0;
+        let isInvincible = false;
+        let hackInterval;
+
+        // ==================== توليد الكائنات ====================
         function spawnObjects() {
             if (!isGameRunning) return;
-            obstacleTimer++; coinTimer++;
+            obstacleTimer++;
+            coinTimer++;
+            powerupTimer++;
+            
             if (obstacleTimer > 100 && Math.random() < 0.35) {
                 const isHardMode = matchCoins > 10 && Math.random() > 0.4;
                 if (isHardMode) {
                     const lanes = [0, 1, 2].sort(() => 0.5 - Math.random());
                     for (let k = 0; k < 2; k++) {
                         const obs = obstacles.find(o => !o.userData.active && o.userData.type === 'train');
-                        if (obs) { obs.position.set(lanesX[lanes[k]], 0, -380); obs.userData.active = true; obs.visible = true; }
+                        if (obs) {
+                            obs.position.set(lanesX[lanes[k]], 0, -380);
+                            obs.userData.active = true;
+                            obs.visible = true;
+                        }
                     }
                 } else {
                     const obs = obstacles.find(o => !o.userData.active);
                     if (obs) {
                         const lane = lanesX[Math.floor(Math.random() * 3)];
-                        obs.position.set(lane, 0, -380); obs.userData.active = true; obs.visible = true;
+                        obs.position.set(lane, 0, -380);
+                        obs.userData.active = true;
+                        obs.visible = true;
                     }
                 }
                 obstacleTimer = 0;
             }
-            if (Math.random() < 0.04) {
+            
+            if (Math.random() < 0.06) {
                 const h = houses.find(x => !x.userData.active);
                 if (h) {
-                    const side = Math.random() > 0.5 ? 14 : -14;
-                    h.position.set(side, 0, -350); h.userData.active = true; h.visible = true;
+                    const side = Math.random() > 0.5 ? 12 : -12;
+                    h.position.set(side, 0, -350);
+                    h.userData.active = true;
+                    h.visible = true;
                 }
             }
-            if (coinTimer > 50 && obstacleTimer > 30 && obstacleTimer < 70 && Math.random() < 0.4) {
+            
+            if (coinTimer > 50 && obstacleTimer > 30 && obstacleTimer < 70 && Math.random() < 0.5) {
                 const lane = lanesX[Math.floor(Math.random() * 3)];
                 for (let j = 0; j < 6; j++) {
                     const coin = coins.find(c => !c.userData.active);
-                    if (coin) { coin.position.set(lane, 0.7, -320 - (j * 4)); coin.userData.active = true; coin.visible = true; }
+                    if (coin) {
+                        coin.position.set(lane, 1.0, -320 - (j * 4));
+                        coin.userData.active = true;
+                        coin.visible = true;
+                    }
                 }
                 coinTimer = 0;
             }
+            
+            if (powerupTimer > 900) {
+                const powerup = powerupsList.find(p => !p.userData.active);
+                if (powerup) {
+                    const lane = lanesX[Math.floor(Math.random() * 3)];
+                    powerup.position.set(lane, 1.0, -350);
+                    powerup.userData.active = true;
+                    powerup.visible = true;
+                    powerupTimer = 0;
+                }
+            }
         }
 
-        let rightHitCount = 0; let lastRightHitTime = 0; let isInvincible = false; let hackInterval;
-        function activateHack() {
-            isInvincible = true; rightHitCount = 0; let timeLeft = 60;
-            const hackUi = document.getElementById('hack-timer');
-            hackUi.classList.remove('hidden'); hackUi.innerText = timeLeft;
-            clearInterval(hackInterval);
-            hackInterval = setInterval(() => {
-                timeLeft--; hackUi.innerText = timeLeft;
-                if (timeLeft <= 0) { clearInterval(hackInterval); isInvincible = false; hackUi.classList.add('hidden'); }
-            }, 1000);
+        // ==================== التحكم ====================
+        function actionLeft() {
+            if (currentLane > -1) {
+                currentLane--;
+                targetX = currentLane * laneWidth;
+            }
         }
-
-        function actionLeft() { if (currentLane > -1) { currentLane--; targetX = currentLane * laneWidth; } }
+        
         function actionRight() {
-            if (currentLane < 1) { currentLane++; targetX = currentLane * laneWidth; }
-            else {
+            if (currentLane < 1) {
+                currentLane++;
+                targetX = currentLane * laneWidth;
+            } else {
                 const now = Date.now();
-                if (now - lastRightHitTime < 500) { rightHitCount++; if (rightHitCount >= 3) activateHack(); }
-                else { rightHitCount = 1; }
+                if (now - lastRightHitTime < 500) {
+                    rightHitCount++;
+                    if (rightHitCount >= 3) {
+                        activateHack();
+                        rightHitCount = 0;
+                    }
+                } else {
+                    rightHitCount = 1;
+                }
                 lastRightHitTime = now;
             }
         }
+        
         function actionJump() {
             if (!isJumping) {
-                isJumping = true; velocityY = jumpStrength;
-                if (isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; }
+                isJumping = true;
+                const boostMultiplier = powerups.jumpBoost.active ? 2 : 1;
+                velocityY = jumpStrength * boostMultiplier;
+                if (isSliding) {
+                    isSliding = false;
+                    playerGroup.scale.y = 1;
+                    playerGroup.position.y += 0.7;
+                }
             }
         }
+        
         function actionSlide() {
             if (!isJumping && !isSliding) {
-                isSliding = true; playerGroup.scale.y = 0.5; playerGroup.position.y -= 0.7;
-                setTimeout(() => { if (isSliding) { isSliding = false; playerGroup.scale.y = 1; playerGroup.position.y += 0.7; } }, 800);
-            } else if (isJumping) velocityY = -jumpStrength;
+                isSliding = true;
+                playerGroup.scale.y = 0.5;
+                playerGroup.position.y -= 0.7;
+                setTimeout(() => {
+                    if (isSliding) {
+                        isSliding = false;
+                        playerGroup.scale.y = 1;
+                        playerGroup.position.y += 0.7;
+                    }
+                }, 800);
+            } else if (isJumping) {
+                velocityY = -jumpStrength;
+            }
+        }
+        
+        function activateHack() {
+            isInvincible = true;
+            let timeLeft = 60;
+            const hackUi = document.getElementById('hack-timer');
+            hackUi.classList.remove('hidden');
+            hackUi.innerText = timeLeft;
+            clearInterval(hackInterval);
+            hackInterval = setInterval(() => {
+                timeLeft--;
+                hackUi.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(hackInterval);
+                    isInvincible = false;
+                    hackUi.classList.add('hidden');
+                }
+            }, 1000);
         }
 
+        // ==================== أحداث الإدخال ====================
         window.addEventListener('keydown', (e) => {
-            if (!isGameRunning) return;
+            if (!isGameRunning || isPaused) return;
             if (e.key === 'ArrowLeft' || e.key === 'a') actionLeft();
             if (e.key === 'ArrowRight' || e.key === 'd') actionRight();
             if (e.key === 'ArrowUp' || e.key === 'w') actionJump();
             if (e.key === 'ArrowDown' || e.key === 's') actionSlide();
+            if (e.key === 'Escape' || e.key === 'p') togglePause();
         });
+        
         let tX = 0, tY = 0;
-        window.addEventListener('touchstart', (e) => { tX = e.touches[0].clientX; tY = e.touches[0].clientY; }, { passive: false });
-        window.addEventListener('touchend', (e) => {
-            if (!isGameRunning) return;
-            const dX = e.changedTouches[0].clientX - tX; const dY = e.changedTouches[0].clientY - tY;
-            if (Math.abs(dX) > Math.abs(dY)) { if (Math.abs(dX) > 30) dX > 0 ? actionRight() : actionLeft(); }
-            else { if (Math.abs(dY) > 30) dY < 0 ? actionJump() : actionSlide(); }
+        window.addEventListener('touchstart', (e) => {
+            tX = e.touches[0].clientX;
+            tY = e.touches[0].clientY;
         }, { passive: false });
-        window.addEventListener('touchmove', e => { if (isGameRunning) e.preventDefault(); }, { passive: false });
+        
+        window.addEventListener('touchend', (e) => {
+            if (!isGameRunning || isPaused) return;
+            const dX = e.changedTouches[0].clientX - tX;
+            const dY = e.changedTouches[0].clientY - tY;
+            if (Math.abs(dX) > Math.abs(dY)) {
+                if (Math.abs(dX) > 30) dX > 0 ? actionRight() : actionLeft();
+            } else {
+                if (Math.abs(dY) > 30) dY < 0 ? actionJump() : actionSlide();
+            }
+        }, { passive: false });
+        
+        window.addEventListener('touchmove', e => {
+            if (isGameRunning) e.preventDefault();
+        }, { passive: false });
 
         window.addEventListener('pointerdown', (e) => {
-            if (isGameRunning || window.isCountingDown || isCameraFocused) return;
-            if (e.target.closest('.ui-btn') || e.target.closest('.cust-btn') || e.target.closest('.modal')) return;
+            if (isGameRunning || window.isCountingDown || isCameraFocused || isPaused) return;
+            if (e.target.closest('.ui-btn') || e.target.closest('.cust-btn') || e.target.closest('.modal') || e.target.closest('#pause-btn') || e.target.closest('#pause-menu')) return;
             startGame();
         });
 
+        // ==================== التصادم ====================
         function checkCollisions() {
             currentGroundY = 0;
-            const pX = playerGroup.position.x; const pY = playerGroup.position.y; const pZ = playerGroup.position.z;
-            const pWidth = 0.8; const pDepth = 0.8; const pHeight = isSliding ? 1.4 : 3.0;
+            const pX = playerGroup.position.x;
+            const pY = playerGroup.position.y;
+            const pZ = playerGroup.position.z;
+            const pWidth = 0.8;
+            const pDepth = 0.8;
+            const pHeight = isSliding ? 1.4 : 3.0;
 
             for (const obs of obstacles) {
                 if (!obs.userData.active) continue;
-                const oX = obs.position.x; const oZ = obs.position.z;
+                const oX = obs.position.x;
+                const oZ = obs.position.z;
+                
                 if (obs.userData.type === 'train') {
-                    if (Math.abs(pX - oX) < (pWidth + 2.6)/2 && Math.abs(pZ - oZ) < (pDepth + 29)/2) {
-                        if (pY >= 3.4 && velocityY <= 0) currentGroundY = 3.4;
-                        else if (pY < 3.4) if (!isInvincible) return loseGame();
+                    if (Math.abs(pX - oX) < (pWidth + 2.6)/2 && Math.abs(pZ - oZ) < (pDepth + 35)/2) {
+                        if (pY >= 3.4 && velocityY <= 0) {
+                            currentGroundY = 3.4;
+                        } else if (pY < 3.4) {
+                            if (!isInvincible) return loseGame();
+                        }
                     }
                 } else if (obs.userData.type === 'barrier') {
                     if (Math.abs(pX - oX) < (pWidth + 3.0)/2 && Math.abs(pZ - oZ) < (pDepth + 0.5)/2) {
-                        if (pY + pHeight > 2.6) if (!isInvincible) return loseGame();
+                        if (pY + pHeight > 2.6) {
+                            if (!isInvincible) return loseGame();
+                        }
                     }
                 }
             }
+            
+            // جمع العملات مع المغناطيس
             for (const coin of coins) {
                 if (!coin.userData.active) continue;
-                if (Math.abs(pX - coin.position.x) < 1.0 && Math.abs(pZ - coin.position.z) < 1.0 && pY < coin.position.y + 1.5) {
-                    coin.userData.active = false; coin.visible = false; coin.position.z = 100;
-                    matchCoins += 1; document.getElementById('coins-val').innerText = matchCoins;
+                
+                const dx = pX - coin.position.x;
+                const dy = (pY + 1.5) - coin.position.y;
+                const dz = pZ - coin.position.z;
+                const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                
+                if (powerups.magnet.active) {
+                    // سحب مغناطيسي واقعي - يبدأ من مسافة 3 أمتار
+                    if (dist < 3 && dist > 1.5) {
+                        const pullStrength = 0.25 * (1 - dist/3);
+                        coin.position.x += dx * pullStrength;
+                        coin.position.y += dy * pullStrength;
+                        coin.position.z += dz * pullStrength;
+                    }
                 }
+                
+                if (dist < 1.5 && pY < coin.position.y + 2) {
+                    coin.userData.active = false;
+                    coin.visible = false;
+                    coin.position.z = 100;
+                    matchCoins += 1;
+                    document.getElementById('coins-val').innerText = matchCoins;
+                }
+            }
+            
+            // جمع الهدايا
+            for (const powerup of powerupsList) {
+                if (!powerup.userData.active) continue;
+                if (Math.abs(pX - powerup.position.x) < 1.5 && Math.abs(pZ - powerup.position.z) < 1.5 && Math.abs(pY - powerup.position.y) < 2) {
+                    powerup.userData.active = false;
+                    powerup.visible = false;
+                    powerup.position.z = 100;
+                    
+                    const type = powerup.userData.type;
+                    if (type === 'jumpBoost') {
+                        powerups.jumpBoost.active = true;
+                        powerups.jumpBoost.timeLeft = 10;
+                        showNotification("👟 قفزة مضاعفة لمدة 10 ثواني!");
+                    } else if (type === 'magnet') {
+                        powerups.magnet.active = true;
+                        powerups.magnet.timeLeft = 20;
+                        showNotification("🧲 مغناطيس لمدة 20 ثانية!");
+                    } else if (type === 'speedBoost') {
+                        powerups.speedBoost.active = true;
+                        powerups.speedBoost.timeLeft = 5;
+                        gameSpeed = CONSTANT_SPEED * 2;
+                        showNotification("🛼 سرعة مضاعفة لمدة 5 ثواني!");
+                    }
+                    updatePowerupIndicators();
+                }
+            }
+            
+            // تحديث مؤقتات الهدايا
+            for (const key in powerups) {
+                if (powerups[key].active) {
+                    powerups[key].timeLeft -= 1/60;
+                    if (powerups[key].timeLeft <= 0) {
+                        powerups[key].active = false;
+                        if (key === 'speedBoost') {
+                            gameSpeed = CONSTANT_SPEED;
+                        }
+                    }
+                }
+            }
+            updatePowerupIndicators();
+        }
+        
+        function updatePowerupIndicators() {
+            const indicator = document.getElementById('powerup-indicator');
+            indicator.innerHTML = '';
+            
+            if (powerups.jumpBoost.active) {
+                indicator.innerHTML += `<div class="powerup-badge">👟 ${Math.ceil(powerups.jumpBoost.timeLeft)}s</div>`;
+            }
+            if (powerups.magnet.active) {
+                indicator.innerHTML += `<div class="powerup-badge">🧲 ${Math.ceil(powerups.magnet.timeLeft)}s</div>`;
+            }
+            if (powerups.speedBoost.active) {
+                indicator.innerHTML += `<div class="powerup-badge">🛼 ${Math.ceil(powerups.speedBoost.timeLeft)}s</div>`;
             }
         }
 
+        // ==================== بدء اللعبة ====================
         function startGame() {
             document.getElementById('start-prompt').classList.add('hidden');
             document.getElementById('side-buttons').classList.add('hidden');
             document.getElementById('bottom-ui').classList.add('hidden');
             document.getElementById('result-overlay').classList.remove('active');
-            targetRotationY = Math.PI; matchCoins = 0; myAlive = true; gameEnded = false;
+            document.getElementById('pause-btn').style.display = 'flex';
+            
+            for (const key in powerups) {
+                powerups[key].active = false;
+                powerups[key].timeLeft = 0;
+            }
+            
+            targetRotationY = Math.PI;
+            matchCoins = 0;
+            myAlive = true;
+            gameEnded = false;
             document.getElementById('coins-val').innerText = '0';
-            playerGroup.position.set(0, 0, 0); playerGroup.scale.y = 1;
-            camera.position.set(0, 7, 12); targetX = 0; currentLane = 0; obstacleTimer = 0; coinTimer = 0;
-            velocityY = 0; isJumping = false; isSliding = false; currentGroundY = 0;
+            
+            playerGroup.position.set(0, 0, 0);
+            playerGroup.scale.y = 1;
+            playerGroup.rotation.z = 0;
+            playerGroup.rotation.x = 0;
+            
+            camera.position.set(0, 7, 12);
+            targetX = 0;
+            currentLane = 0;
+            obstacleTimer = 0;
+            coinTimer = 0;
+            powerupTimer = 0;
+            velocityY = 0;
+            isJumping = false;
+            isSliding = false;
+            currentGroundY = 0;
+            isPaused = false;
 
-            obstacles.forEach(o => { o.userData.active = false; o.position.z = 100; o.visible = false; });
-            coins.forEach(c => { c.userData.active = false; c.position.z = 100; c.visible = false; });
-            houses.forEach(h => { h.userData.active = false; h.position.z = 100; h.visible = false; });
+            obstacles.forEach(o => {
+                o.userData.active = false;
+                o.position.z = 100;
+                o.visible = false;
+            });
+            coins.forEach(c => {
+                c.userData.active = false;
+                c.position.z = 100;
+                c.visible = false;
+            });
+            houses.forEach(h => {
+                h.userData.active = false;
+                h.position.z = 100;
+                h.visible = false;
+            });
+            powerupsList.forEach(p => {
+                p.userData.active = false;
+                p.position.z = 100;
+                p.visible = false;
+            });
 
             let sleepIdx = 0;
             for (let i = 0; i < 60; i++) {
-                lanesX.forEach(x => { if (sleepersGroup.children[sleepIdx]) sleepersGroup.children[sleepIdx].position.z = -i * 4; sleepIdx++; });
+                lanesX.forEach(x => {
+                    if (sleepersGroup.children[sleepIdx]) sleepersGroup.children[sleepIdx].position.z = -i * 4;
+                    sleepIdx++;
+                });
             }
-            gameSpeed = CONSTANT_SPEED; isGameRunning = true;
-            if (isMultiplayer && currentRoom) {
+            
+            let fenceIdx = 0;
+            [-4.5, 4.5].forEach(sideX => {
+                for (let i = 0; i < 60; i++) {
+                    if (fenceGroup.children[fenceIdx]) {
+                        fenceGroup.children[fenceIdx].position.z = -i * 4;
+                        fenceIdx++;
+                    }
+                    if (fenceGroup.children[fenceIdx] && i < 59) {
+                        fenceGroup.children[fenceIdx].position.z = -i * 4 - 2;
+                        fenceIdx++;
+                    }
+                    if (fenceGroup.children[fenceIdx] && i < 59) {
+                        fenceGroup.children[fenceIdx].position.z = -i * 4 - 2;
+                        fenceIdx++;
+                    }
+                }
+            });
+            
+            gameSpeed = CONSTANT_SPEED;
+            isGameRunning = true;
+            
+            if (isMultiplayer && currentRoom && isOnline && db) {
                 update(ref(db, `rooms/${currentRoom}`), { status: 'playing', gameEnded: false });
                 get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                     const r = snap.val();
-                    if (r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { alive: true, coins: 0 });
+                    if (r) {
+                        const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
+                        update(ref(db, `rooms/${currentRoom}/${stateKey}`), { alive: true, coins: 0 });
+                    }
                 });
             }
         }
 
+        // ==================== الخسارة والفوز ====================
         function loseGame() {
-            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; myAlive = false;
-            if (isMultiplayer && currentRoom && !gameEnded) {
+            isGameRunning = false;
+            gameSpeed = 0;
+            targetRotationY = 0;
+            myAlive = false;
+            
+            playerGroup.rotation.z = Math.PI / 2;
+            playerGroup.position.y = 0.2;
+            
+            document.getElementById('pause-btn').style.display = 'none';
+            
+            if (isMultiplayer && currentRoom && !gameEnded && isOnline && db) {
+                gameEnded = true;
                 get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                     const r = snap.val();
-                    if (r && !gameEnded) {
-                        gameEnded = true;
+                    if (r && !r.gameEnded) {
                         const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
                         update(ref(db, `rooms/${currentRoom}/${stateKey}`), { alive: false, coins: matchCoins });
+                        update(ref(db, `rooms/${currentRoom}`), { 
+                            status: 'ended', 
+                            gameEnded: true,
+                            matchWinner: r.p1 === myNumId ? r.p2 : r.p1,
+                            matchLoser: myNumId,
+                            matchWinnerCoins: matchCoins,
+                            matchLoserCoins: matchCoins
+                        });
+                        
                         const oppName = r.p1 === myNumId ? (r.p2Name || "لاعب") : (r.p1Name || "لاعب");
                         const oppId = r.p1 === myNumId ? r.p2 : r.p1;
-                        get(ref(db, `users/${oppId}`)).then(userSnap => {
-                            const oppVictoryMsg = userSnap.exists() ? (userSnap.val().victoryMsg || "لقد فزت! 👑") : "لقد فزت! 👑";
-                            showResultOverlay([{ name: oppName, coins: matchCoins }, { name: myName, coins: matchCoins }], oppVictoryMsg, true);
-                            showNotification("لقد خسرت الجولة! 😢");
-                        });
+                        
+                        if (oppId && isOnline && db) {
+                            get(ref(db, `users/${oppId}`)).then(userSnap => {
+                                const oppVictoryMsg = userSnap.exists() ? (userSnap.val().victoryMsg || "لقد فزت! 👑") : "لقد فزت! 👑";
+                                showResultOverlay([
+                                    { name: oppName, coins: matchCoins },
+                                    { name: myName, coins: matchCoins }
+                                ], oppVictoryMsg, true);
+                                showNotification("لقد خسرت الجولة! 😢");
+                            });
+                        }
                     }
                 });
             } else {
-                savedCoins += matchCoins; saveUserData();
+                savedCoins += matchCoins;
+                saveUserData();
                 document.getElementById('coins-val').innerText = savedCoins;
                 showNotification("لقد خسرت الجولة!");
                 document.getElementById('start-prompt').classList.remove('hidden');
@@ -1217,92 +2859,249 @@
         }
 
         function winGame(oppCoins, oppName, oppVictoryMsg) {
-            isGameRunning = false; gameSpeed = 0; targetRotationY = 0; gameEnded = true;
-            const total = matchCoins + (oppCoins || 0); savedCoins += total; saveUserData();
+            isGameRunning = false;
+            gameSpeed = 0;
+            targetRotationY = 0;
+            gameEnded = true;
+            
+            playerGroup.rotation.z = 0;
+            playerGroup.position.y = 0;
+            
+            document.getElementById('pause-btn').style.display = 'none';
+            
+            const total = matchCoins + (oppCoins || 0);
+            savedCoins += total;
+            saveUserData();
             document.getElementById('coins-val').innerText = savedCoins;
-            showResultOverlay([{ name: myName, coins: matchCoins }, { name: oppName || "لاعب", coins: oppCoins || 0 }], null, false);
+            
+            showResultOverlay([
+                { name: myName, coins: matchCoins },
+                { name: oppName || "لاعب", coins: oppCoins || 0 }
+            ], null, false);
+            
             showNotification(`الفوز! حصدت ${total} ذهبة 🏆`);
-            if (currentRoom) { remove(ref(db, `rooms/${currentRoom}`)); currentRoom = null; }
-            isMultiplayer = false; opponentGroup.visible = false;
+            
+            if (currentRoom && isOnline && db) {
+                update(ref(db, `rooms/${currentRoom}`), { 
+                    status: 'ended', 
+                    gameEnded: true,
+                    matchWinner: myNumId,
+                    matchLoser: null,
+                    matchWinnerCoins: matchCoins,
+                    matchLoserCoins: oppCoins || 0
+                }).then(() => {
+                    setTimeout(() => {
+                        remove(ref(db, `rooms/${currentRoom}`)).catch(e => {});
+                    }, 2000);
+                });
+                currentRoom = null;
+            }
+            
+            isMultiplayer = false;
+            opponentGroup.visible = false;
         }
 
+        // ==================== الأنيميشن الرئيسي ====================
         let lastSync = 0;
         function animate(time) {
             requestAnimationFrame(animate);
+            
             playerGroup.rotation.y += (targetRotationY - playerGroup.rotation.y) * 0.15;
 
-            // نظام الكاميرا السلس اثناء التعديل
             if(!isGameRunning && isCameraFocused) {
                 camera.position.lerp(targetCameraPos, 0.08);
                 currentCameraLookAt.lerp(targetCameraLookAt, 0.08);
                 camera.lookAt(currentCameraLookAt);
-                playerGroup.position.x = 0; // توسيط اللاعب عند التعديل
+                playerGroup.position.x = 0;
+                playerGroup.rotation.z = 0;
+                playerGroup.position.y = 0;
             } else if (!isGameRunning && !isCameraFocused) {
-                // الكاميرا الطبيعية باللوبي
                 camera.position.lerp(targetCameraPos, 0.08);
                 currentCameraLookAt.lerp(targetCameraLookAt, 0.08);
                 camera.lookAt(currentCameraLookAt);
-                playerGroup.position.x = Math.sin(time * 0.002) * 0.1; // اهتزاز بسيط باللوبي
+                playerGroup.position.x = Math.sin(time * 0.002) * 0.1;
                 camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
+                playerGroup.rotation.z = 0;
+                playerGroup.position.y = 0;
             }
 
-            if (isGameRunning) {
-                // حركة الكاميرا اثناء اللعب
+            if (isGameRunning && !isPaused) {
                 currentCameraLookAt.set(playerGroup.position.x * 0.5, playerGroup.position.y + 2, playerGroup.position.z - 5);
                 camera.lookAt(currentCameraLookAt);
 
                 playerGroup.position.x += (targetX - playerGroup.position.x) * 0.2;
                 playerGroup.rotation.z = (playerGroup.position.x - targetX) * 0.05;
-                playerGroup.position.y += velocityY; velocityY += gravity;
-                if (playerGroup.position.y <= currentGroundY) { playerGroup.position.y = currentGroundY; velocityY = 0; isJumping = false; }
+                playerGroup.position.y += velocityY;
+                velocityY += gravity;
+                
+                if (playerGroup.position.y <= currentGroundY) {
+                    playerGroup.position.y = currentGroundY;
+                    velocityY = 0;
+                    isJumping = false;
+                }
 
                 if (!isJumping && !isSliding) {
                     runAnimTime += 0.4;
-                    playerGroup.getObjectByName("lLeg").rotation.x = Math.sin(runAnimTime) * 0.7;
-                    playerGroup.getObjectByName("rLeg").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
-                    playerGroup.getObjectByName("lArmGroup").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
-                    playerGroup.getObjectByName("rArmGroup").rotation.x = Math.sin(runAnimTime) * 0.7;
+                    playerGroup.getObjectByName("leftLegGroup").rotation.x = Math.sin(runAnimTime) * 0.7;
+                    playerGroup.getObjectByName("rightLegGroup").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
+                    playerGroup.getObjectByName("leftArmGroup").rotation.x = Math.sin(runAnimTime + Math.PI) * 0.7;
+                    playerGroup.getObjectByName("rightArmGroup").rotation.x = Math.sin(runAnimTime) * 0.7;
                 } else {
-                    playerGroup.getObjectByName("lLeg").rotation.x = 0; playerGroup.getObjectByName("rLeg").rotation.x = 0;
-                    playerGroup.getObjectByName("lArmGroup").rotation.x = 0; playerGroup.getObjectByName("rArmGroup").rotation.x = 0;
+                    playerGroup.getObjectByName("leftLegGroup").rotation.x = 0;
+                    playerGroup.getObjectByName("rightLegGroup").rotation.x = 0;
+                    playerGroup.getObjectByName("leftArmGroup").rotation.x = 0;
+                    playerGroup.getObjectByName("rightArmGroup").rotation.x = 0;
                 }
 
                 camera.position.x += (playerGroup.position.x * 0.4 - camera.position.x) * 0.15;
                 camera.position.y = playerGroup.position.y + 7;
 
-                sleepersGroup.children.forEach(s => { s.position.z += gameSpeed; if (s.position.z > camera.position.z + 15) s.position.z -= 240; });
+                sleepersGroup.children.forEach(s => {
+                    s.position.z += gameSpeed;
+                    if (s.position.z > camera.position.z + 15) s.position.z -= 240;
+                });
+                
+                fenceGroup.children.forEach(f => {
+                    f.position.z += gameSpeed;
+                    if (f.position.z > camera.position.z + 15) f.position.z -= 240;
+                });
+                
                 obstacles.forEach(o => {
                     if (o.userData.active) {
                         o.position.z += gameSpeed + (o.userData.type === 'train' ? 0.35 : 0);
-                        if (o.position.z > camera.position.z + 35) { o.userData.active = false; o.visible = false; o.position.z = 100; }
+                        if (o.position.z > camera.position.z + 40) {
+                            o.userData.active = false;
+                            o.visible = false;
+                            o.position.z = 100;
+                        }
                     }
                 });
+                
                 houses.forEach(h => {
-                    if (h.userData.active) { h.position.z += gameSpeed; if (h.position.z > camera.position.z + 25) { h.userData.active = false; h.visible = false; h.position.z = 100; } }
+                    if (h.userData.active) {
+                        h.position.z += gameSpeed;
+                        if (h.position.z > camera.position.z + 30) {
+                            h.userData.active = false;
+                            h.visible = false;
+                            h.position.z = 100;
+                        }
+                    }
                 });
+                
                 coins.forEach(c => {
-                    if (c.userData.active) { c.position.z += gameSpeed; c.rotation.y += 0.1; if (c.position.z > camera.position.z + 12) { c.userData.active = false; c.visible = false; c.position.z = 100; } }
+                    if (c.userData.active) {
+                        c.position.z += gameSpeed;
+                        c.rotation.y += 0.1;
+                        const glow = c.getObjectByName("glow");
+                        if (glow) {
+                            glow.scale.setScalar(1 + Math.sin(time * 0.005) * 0.15);
+                        }
+                        if (c.position.z > camera.position.z + 15) {
+                            c.userData.active = false;
+                            c.visible = false;
+                            c.position.z = 100;
+                        }
+                    }
+                });
+                
+                powerupsList.forEach(p => {
+                    if (p.userData.active) {
+                        p.position.z += gameSpeed;
+                        p.rotation.y += 0.05;
+                        const glow = p.getObjectByName("glow");
+                        if (glow) {
+                            glow.scale.setScalar(1 + Math.sin(time * 0.005) * 0.2);
+                        }
+                        if (p.position.z > camera.position.z + 15) {
+                            p.userData.active = false;
+                            p.visible = false;
+                            p.position.z = 100;
+                        }
+                    }
                 });
 
-                spawnObjects(); checkCollisions();
+                spawnObjects();
+                checkCollisions();
 
-                if (isMultiplayer && currentRoom && time - lastSync > 100) {
+                if (isMultiplayer && currentRoom && isOnline && db && time - lastSync > 100) {
                     lastSync = time;
                     get(ref(db, `rooms/${currentRoom}`)).then(snap => {
                         const r = snap.val();
-                        if (r) update(ref(db, `rooms/${currentRoom}/${r.p1 === myNumId ? 'p1State' : 'p2State'}`), { x: playerGroup.position.x, y: playerGroup.position.y, z: playerGroup.position.z, coins: matchCoins });
-                    });
+                        if (r) {
+                            const stateKey = r.p1 === myNumId ? 'p1State' : 'p2State';
+                            update(ref(db, `rooms/${currentRoom}/${stateKey}`), {
+                                x: playerGroup.position.x,
+                                y: playerGroup.position.y,
+                                z: playerGroup.position.z,
+                                coins: matchCoins,
+                                lastSync: serverTimestamp()
+                            });
+                        }
+                    }).catch(e => {});
                 }
             }
+            
             renderer.render(scene, camera);
         }
 
+        // ==================== تغيير حجم النافذة ====================
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        // ==================== بدء الأنيميشن ====================
         animate(0);
+        
+                    // تحديث الجسم حسب الجنس
+            const isGirl = customizations.gender === 'girl';
+            const torso = p.getObjectByName("torso");
+            const chest = p.getObjectByName("chest");
+            const leftShoulder = p.getObjectByName("leftShoulder");
+            const rightShoulder = p.getObjectByName("rightShoulder");
+            const pelvis = p.getObjectByName("pelvis");
+            
+            if (torso) {
+                if (isGirl) {
+                    torso.scale.set(0.9, 0.95, 0.85);
+                } else {
+                    torso.scale.set(1.1, 1.0, 0.9);
+                }
+            }
+            
+            if (chest) {
+                if (isGirl) {
+                    chest.scale.set(0.95, 0.55, 0.85);
+                } else {
+                    chest.scale.set(1.0, 0.5, 0.8);
+                }
+            }
+            
+            if (leftShoulder) {
+                if (isGirl) {
+                    leftShoulder.position.x = -0.42;
+                } else {
+                    leftShoulder.position.x = -0.5;
+                }
+            }
+            
+            if (rightShoulder) {
+                if (isGirl) {
+                    rightShoulder.position.x = 0.42;
+                } else {
+                    rightShoulder.position.x = 0.5;
+                }
+            }
+            
+            if (pelvis) {
+                if (isGirl) {
+                    pelvis.scale.set(1.1, 1.0, 1.05);
+                } else {
+                    pelvis.scale.set(1, 1, 1);
+                }
+            }
+            
     </script>
 </body>
 </html>
