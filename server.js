@@ -6,9 +6,9 @@ const { StringSession } = require('telegram/sessions');
 const app = express();
 app.use(cors()); 
 
-// معلوماتك الخاصة
-const apiId = 32614591;
-const apiHash = 'f2c267e4d7c2e6a1c1fca3589a729eb8';
+// معلوماتك الخاصة المحدثة والصحيحة
+const apiId = 32514591;
+const apiHash = '82e267e4d7ca66a1e1fce35896729eb8';
 const botToken = '8856314868:AAHoQbJXMpJdqSRXsfFArNwEKWTlAJekmhE';
 
 const stringSession = new StringSession('');
