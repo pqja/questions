@@ -4,7 +4,6 @@ const { TelegramClient } = require('telegram');
 const { StringSession } = require('telegram/sessions');
 
 const app = express();
-// السماح للمنصة مالتك بتشغيل الفيديوهات
 app.use(cors()); 
 
 // معلوماتك الخاصة
@@ -12,13 +11,11 @@ const apiId = 32614591;
 const apiHash = 'f2c267e4d7c2e6a1c1fca3589a729eb8';
 const botToken = '8856314868:AAHoQbJXMpJdqSRXsfFArNwEKWTlAJekmhE';
 
-// إنشاء الاتصال
 const stringSession = new StringSession('');
 const client = new TelegramClient(stringSession, apiId, apiHash, {
     connectionRetries: 5,
 });
 
-// تشغيل البوت وربطه بالسيرفر
 (async () => {
     console.log('جاري الاتصال بالتلكرام...');
     await client.start({ botAuthToken: botToken });
@@ -29,28 +26,29 @@ app.get('/', (req, res) => {
     res.send('سيرفر المحاضرات شغال ومربوط بالبوت 100%!');
 });
 
-// مسار سحب وبث الفيديوهات
 app.get('/video', async (req, res) => {
     try {
-        const channelId = req.query.c; // معرف القناة
-        const messageId = parseInt(req.query.m); // رقم رسالة الفيديو
+        const fullLink = req.query.link; 
 
-        if (!channelId || !messageId) {
-            return res.status(400).send('يرجى توفير معرف القناة ورقم الرسالة');
+        if (!fullLink) {
+            return res.status(400).send('يرجى توفير رابط التلكرام');
         }
 
-        // جلب رسالة الفيديو من القناة
+        // استخراج الأرقام من الرابط وإضافة -100 للقناة الخاصة تلقائياً
+        const parts = fullLink.split('/');
+        const messageId = parseInt(parts[parts.length - 1]); 
+        const channelId = parseInt('-100' + parts[parts.length - 2]); 
+
         const messages = await client.getMessages(channelId, { ids: [messageId] });
         const message = messages[0];
 
         if (!message || !message.media || !message.media.document) {
-            return res.status(404).send('الفيديو غير موجود أو الرسالة لا تحتوي على فيديو');
+            return res.status(404).send('الفيديو غير موجود أو البوت ليس مشرفاً');
         }
 
         const fileSize = Number(message.media.document.size);
         const range = req.headers.range;
 
-        // تهيئة البث كأجزاء (Chunks) حتى يشتغل داخل مشغل HTML بدون تقطيع
         if (range) {
             const parts = range.replace(/bytes=/, "").split("-");
             const start = parseInt(parts[0], 10);
@@ -78,7 +76,7 @@ app.get('/video', async (req, res) => {
             res.writeHead(200, {
                 'Content-Length': fileSize,
                 'Content-Type': 'video/mp4',
-            }); 
+            });
             
             const stream = client.iterDownload({
                 file: message.media,
