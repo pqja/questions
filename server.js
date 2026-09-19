@@ -19,18 +19,22 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
 (async () => {
     console.log('جاري الاتصال بالتلكرام...');
     
-    // استخدمنا start بدل connect حتى نعطيه الباسورد مباشرة لتخطي الخطأ
-    await client.start({
-        password: async () => '.mkiikm.',
-        onError: (err) => console.log(err),
-    });
-    
-    console.log('تم الاتصال بنجاح وتخطي التحقق بخطوتين!');
-    
-    // جلب المحادثات لمرة واحدة حتى يتعرف السيرفر على القنوات
-    console.log('جاري التعرف على القنوات...');
-    await client.getDialogs();
-    console.log('تم التعرف على القنوات! السيرفر جاهز.');
+    try {
+        await client.start({
+            phoneNumber: async () => '+9647773847800',
+            password: async () => '.mkiikm.',
+            phoneCode: async () => '', 
+            onError: (err) => console.log(err),
+        });
+        
+        console.log('تم الاتصال بنجاح وتخطي التحقق بخطوتين!');
+        
+        console.log('جاري التعرف على القنوات...');
+        await client.getDialogs();
+        console.log('تم التعرف على القنوات! السيرفر جاهز.');
+    } catch (error) {
+        console.error('حدث خطأ:', error);
+    }
 })();
 
 app.get('/', (req, res) => {
