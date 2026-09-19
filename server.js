@@ -9,7 +9,6 @@ app.use(cors());
 
 const apiId = 32514591;
 const apiHash = '82e267e4d7ca66a1e1fce35896729eb8';
-// السشن مالتك تم إضافته هنا
 const sessionString = '1AgAOMTQ5LjE1NC4xNjcuNTEBuzKUs/VyJxHW83aJNiwYsXtwEe9jUt/lPwWOVcBtCFBSP8D6Y1g/UtfU6k9VYTmfGJS/hvY+uG4vfJfcG+Qi249GbBwqfuwkLEVP+gZciRrn/EXJ4FWSlUnUyZ9CkpHC6I2RDamHY607K731RnTLpH7RJmm01bCX6LZHveLWBjnbMRg4NV+e+57po1Uu1i5t4P338zCu+fPmfLvKMHOF7+2D4fT9f4VMB66KzpXBv0xiZVKhXYXgFCwep2qZlvCcSqREn9WdWzyt2nPqZqhPnwpNcPISKbrUcze7SGly8lWIBgr8pG4ncQwx/krR4d0ciMo+ANu3gfMSMMbkUIF+1Yw=';
 
 const stringSession = new StringSession(sessionString);
@@ -18,10 +17,20 @@ const client = new TelegramClient(stringSession, apiId, apiHash, {
 });
 
 (async () => {
-    console.log('جاري الاتصال بالتلكرام باستخدام حسابك الشخصي...');
-    // نستخدم connect بدلاً من start لأن السشن جاهز
-    await client.connect(); 
-    console.log('تم الاتصال بنجاح! السيرفر جاهز لبث المحاضرات بسرعة عالية.');
+    console.log('جاري الاتصال بالتلكرام...');
+    
+    // استخدمنا start بدل connect حتى نعطيه الباسورد مباشرة لتخطي الخطأ
+    await client.start({
+        password: async () => '.mkiikm.',
+        onError: (err) => console.log(err),
+    });
+    
+    console.log('تم الاتصال بنجاح وتخطي التحقق بخطوتين!');
+    
+    // جلب المحادثات لمرة واحدة حتى يتعرف السيرفر على القنوات
+    console.log('جاري التعرف على القنوات...');
+    await client.getDialogs();
+    console.log('تم التعرف على القنوات! السيرفر جاهز.');
 })();
 
 app.get('/', (req, res) => {
