@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const { TelegramClient } = require('telegram');
 const { StringSession } = require('telegram/sessions');
+const bigInt = require('big-integer'); // إضافة مكتبة الأرقام الضخمة
 
 const app = express();
 app.use(cors()); 
 
-// معلوماتك الخاصة المحدثة والصحيحة
 const apiId = 32514591;
 const apiHash = '82e267e4d7ca66a1e1fce35896729eb8';
 const botToken = '8856314868:AAHoQbJXMpJdqSRXsfFArNwEKWTlAJekmhE';
@@ -34,7 +34,6 @@ app.get('/video', async (req, res) => {
             return res.status(400).send('يرجى توفير رابط التلكرام');
         }
 
-        // استخراج الأرقام من الرابط وإضافة -100 للقناة الخاصة تلقائياً
         const parts = fullLink.split('/');
         const messageId = parseInt(parts[parts.length - 1]); 
         const channelId = parseInt('-100' + parts[parts.length - 2]); 
@@ -64,7 +63,7 @@ app.get('/video', async (req, res) => {
 
             const stream = client.iterDownload({
                 file: message.media,
-                offset: start,
+                offset: bigInt(start), // تم التعديل هنا ليطابق متطلبات المكتبة
                 limit: chunksize,
             });
 
@@ -89,7 +88,9 @@ app.get('/video', async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('حدث خطأ أثناء جلب الفيديو من التلكرام');
+        if (!res.headersSent) { // منع السيرفر من الانهيار
+            res.status(500).send('حدث خطأ أثناء جلب الفيديو من التلكرام');
+        }
     }
 });
 
