@@ -78,7 +78,7 @@ app.get('/video', async (req, res) => {
             res.writeHead(200, {
                 'Content-Length': fileSize,
                 'Content-Type': 'video/mp4',
-            });
+            }); 
             
             const stream = client.iterDownload({
                 file: message.media,
